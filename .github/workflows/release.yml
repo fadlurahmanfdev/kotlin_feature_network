@@ -29,7 +29,7 @@ jobs:
         uses: jakejarvis/wait-action@master
         with:
           time: '120s'
-      - name: Curl Tag Release Jitpack IO
+      - name: Curl Tag Release Jitpack IO Part 1
         uses: wei/curl@master
         continue-on-error: true
         with:
@@ -38,7 +38,7 @@ jobs:
         uses: jakejarvis/wait-action@master
         with:
           time: '120s'
-      - name: Curl Tag Release Jitpack IO
+      - name: Curl Tag Release Jitpack IO Part 2
         uses: wei/curl@master
         continue-on-error: true
         with:
