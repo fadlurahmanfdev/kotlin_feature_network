@@ -8,7 +8,6 @@ abstract class SSLInterceptor : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         val request = chain.request()
         try {
-            request.newBuilder().url("")
             return chain.proceed(request)
         } catch (e: SSLHandshakeException) {
             return onSSLException(chain, e)
