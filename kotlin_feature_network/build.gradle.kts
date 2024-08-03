@@ -48,6 +48,7 @@ dependencies {
     api("com.squareup.retrofit2:converter-gson:$retrofitVersion")
 
     api("com.github.akarnokd:rxjava3-retrofit-adapter:3.0.0")
+    api("com.squareup.retrofit2:adapter-rxjava2:2.11.0")
 
     api("com.squareup.okhttp3:logging-interceptor:4.12.0")
 
