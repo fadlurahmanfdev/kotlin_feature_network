@@ -10,6 +10,7 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.CallAdapter
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.util.concurrent.TimeUnit
 
 class FeatureNetworkRepositoryImpl : FeatureNetworkRepository {
     /**
@@ -38,14 +39,32 @@ class FeatureNetworkRepositoryImpl : FeatureNetworkRepository {
 
     /**
      * The getOkHttpClientBuilder function provides a way to configure an OkHttpClient with optional logging and SSL certificate pinning. Adjusting these parameters customizes the client's behavior according to specific needs.
+     * @param connectTimeout Sets the maximum time allowed for establishing a connection, in milliseconds. If null, the default timeout is used.
+     * @param readTimeout Specifies the maximum time allowed for reading data from the server, in milliseconds. If null, the default timeout is applied.
+     * @param writeTimeout Determines the maximum time allowed for writing data to the server, in milliseconds. If null, the default timeout is used.
      * @param useLoggingInterceptor Indicates whether to include a logging interceptor in the OkHttpClient. When set to true, network requests and responses will be logged, which is useful for debugging.
      * @param sslCertificatePinner Allows the addition of an SSL certificate pinner to the OkHttpClient for extra security by pinning specific certificates. If set to null, no certificate pinning is applied.
      */
     override fun getOkHttpClientBuilder(
+        connectTimeout: Long?,
+        readTimeout: Long?,
+        writeTimeout: Long?,
         useLoggingInterceptor: Boolean,
         sslCertificatePinner: CertificatePinner?
     ): OkHttpClient.Builder {
         return OkHttpClient.Builder().apply {
+            if (connectTimeout != null) {
+                this.connectTimeout(connectTimeout, TimeUnit.MILLISECONDS)
+            }
+
+            if (readTimeout != null) {
+                this.readTimeout(readTimeout, TimeUnit.MILLISECONDS)
+            }
+
+            if (writeTimeout != null) {
+                this.writeTimeout(writeTimeout, TimeUnit.MILLISECONDS)
+            }
+
             if (sslCertificatePinner != null) {
                 certificatePinner(sslCertificatePinner)
             }

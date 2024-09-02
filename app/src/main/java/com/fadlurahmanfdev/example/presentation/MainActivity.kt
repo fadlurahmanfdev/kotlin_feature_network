@@ -26,6 +26,12 @@ class MainActivity : AppCompatActivity(), ListExampleAdapter.Callback {
             desc = "Fetched Post - OK",
             enum = "FETCHED_POST_OK"
         ),
+        FeatureModel(
+            featureIcon = R.drawable.baseline_developer_mode_24,
+            title = "Fetched Post",
+            desc = "Fetched Post - Incorrect SSL",
+            enum = "FETCHED_POST_INCORRECT_SSL"
+        ),
     )
 
     private lateinit var rv: RecyclerView
@@ -43,31 +49,13 @@ class MainActivity : AppCompatActivity(), ListExampleAdapter.Callback {
         }
         rv = findViewById<RecyclerView>(R.id.rv)
 
-        val networkRepository: FeatureNetworkRepository = FeatureNetworkRepositoryImpl()
+        setupApiClient()
 
         viewModel = MainViewModel(
             exampleNetworkUseCase = ExampleNetworkUseCaseImpl(
                 repositoryDatasource = RepositoryDatasourceImpl(
-                    jsonPlaceHolderAPI = networkRepository.createAPI(
-                        baseUrl = "https://jsonplaceholder.typicode.com/",
-                        okHttpClient = networkRepository.getOkHttpClientBuilder(
-                            useLoggingInterceptor = true,
-                            sslCertificatePinner = networkRepository.getCertificatePinnerBuilder()
-                                .add(
-                                    "api.bankmas.my.id",
-                                    "sha256/++MBgDH5WGvL9Bcn5Be30cRcL0f5O+NyoXuWtQdX1aI",
-                                    "sha256/18tkPyr2nckv4fgo0dhAkaUtJ2hu2831xlO2SKhq8dg",
-                                    "sha256/QlV/1sAaZ+gEZYeNctG/Y2nUSEiafHQB3z35kAFSIxU"
-                                )
-                                .build()
-                        )
-                            .addInterceptor(
-                                networkRepository.getChuckerInterceptorBuilder(this).build()
-                            )
-                            .build(),
-                        callAdapterFactory = RxJava3CallAdapterFactory.create(),
-                        clazz = JsonPlaceHolderAPI::class.java
-                    )
+                    jsonPlaceHolderAPI = jsonPlaceHolderAPI,
+                    jsonPlaceHolderIncorrectSslAPI = jsonPlaceHolderIncorrectSSLAPI
                 )
             )
         )
@@ -109,6 +97,10 @@ class MainActivity : AppCompatActivity(), ListExampleAdapter.Callback {
             "FETCHED_POST_OK" -> {
                 viewModel.fetchedPostOk()
             }
+
+            "FETCHED_POST_INCORRECT_SSL" -> {
+                viewModel.fetchedPostIncorrectSsl()
+            }
         }
     }
 
@@ -136,5 +128,48 @@ class MainActivity : AppCompatActivity(), ListExampleAdapter.Callback {
     fun dismissInfoBottomsheet() {
         infoBottomsheet?.dismiss()
         infoBottomsheet = null
+    }
+
+    lateinit var jsonPlaceHolderAPI: JsonPlaceHolderAPI
+    lateinit var jsonPlaceHolderIncorrectSSLAPI: JsonPlaceHolderAPI
+    private fun setupApiClient() {
+        val networkRepository: FeatureNetworkRepository = FeatureNetworkRepositoryImpl()
+        val chuckerInterceptor = networkRepository.getChuckerInterceptorBuilder(this).build()
+        val jsonPlaceHolderIncorrectSslPinner = networkRepository.getCertificatePinnerBuilder()
+            .add(
+                "jsonplaceholder.typicode.com",
+                "sha256/B17MJoW6Bu9Hl+JStLT4gw+gm3nSDQ3lxuj6xKQrjmU",
+                "sha256/e0IRz5Tio3GA1Xs4fUVWmH1xHDiH2dMbVtCBSkOIdqM",
+                "sha256/r/mIkG3eEpVdm+u/ko/cwxzOMo1bk4TyHIlByibiA5E="
+            )
+            .build()
+        val jsonPlaceHolderSslPinner = networkRepository.getCertificatePinnerBuilder()
+            .add(
+                "jsonplaceholder.typicode.com",
+                "sha256/IcwtGuxd2fA2t1B0ylJrjvtQm4g4vz5aVshokMHp2Qc=",
+                "sha256/kIdp6NNEd8wsugYyyIYFsi1ylMCED3hZbSR8ZFsa/A4=",
+                "sha256/mEflZT5enoR1FuXLgYYGqnVEoZvmf9c2bVBpiOjYQ0c="
+            )
+            .build()
+        val okHttpClient = networkRepository.getOkHttpClientBuilder(
+            useLoggingInterceptor = true,
+            sslCertificatePinner = jsonPlaceHolderSslPinner
+        ).addInterceptor(chuckerInterceptor).build()
+        val incorrectSslOkHttpClient = networkRepository.getOkHttpClientBuilder(
+            useLoggingInterceptor = true,
+            sslCertificatePinner = jsonPlaceHolderIncorrectSslPinner
+        ).addInterceptor(chuckerInterceptor).build()
+        jsonPlaceHolderAPI = networkRepository.createAPI(
+            baseUrl = "https://jsonplaceholder.typicode.com/",
+            okHttpClient = okHttpClient,
+            callAdapterFactory = RxJava3CallAdapterFactory.create(),
+            clazz = JsonPlaceHolderAPI::class.java
+        )
+        jsonPlaceHolderIncorrectSSLAPI = networkRepository.createAPI(
+            baseUrl = "https://jsonplaceholder.typicode.com/",
+            okHttpClient = incorrectSslOkHttpClient,
+            callAdapterFactory = RxJava3CallAdapterFactory.create(),
+            clazz = JsonPlaceHolderAPI::class.java
+        )
     }
 }

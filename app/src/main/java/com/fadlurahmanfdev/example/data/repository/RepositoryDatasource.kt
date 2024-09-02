@@ -5,4 +5,5 @@ import io.reactivex.rxjava3.core.Observable
 
 interface RepositoryDatasource {
     fun getPostById(id:Int): Observable<PostResponse>
+    fun getPostByIdIncorrectSSL(id:Int): Observable<PostResponse>
 }
