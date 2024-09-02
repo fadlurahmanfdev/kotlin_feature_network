@@ -81,17 +81,22 @@ class MainActivity : AppCompatActivity(), ListExampleAdapter.Callback {
         adapter.setHasStableIds(true)
         rv.adapter = adapter
 
-        viewModel.fetchedPostState.observe(this){ state ->
-            when(state){
+        viewModel.fetchedPostState.observe(this) { state ->
+            when (state) {
                 is FetchNetworkState.FAILED -> {
-
+                    dismissInfoBottomsheet()
+                    showInfoBottomsheet(state.title, state.message)
                 }
+
                 FetchNetworkState.LOADING -> {
-
+                    showLoading()
                 }
+
                 FetchNetworkState.SUCCESS -> {
-
+                    dismissLoading()
+                    showInfoBottomsheet("Success / Sukses", "OK")
                 }
+
                 else -> {
 
                 }
@@ -105,5 +110,31 @@ class MainActivity : AppCompatActivity(), ListExampleAdapter.Callback {
                 viewModel.fetchedPostOk()
             }
         }
+    }
+
+    var loadingDialog: LoadingDialog? = null
+    fun showLoading() {
+        dismissLoading()
+        loadingDialog = LoadingDialog()
+        loadingDialog?.show(supportFragmentManager, LoadingDialog::class.java.simpleName)
+    }
+
+    fun dismissLoading() {
+        loadingDialog?.dismiss()
+        loadingDialog = null
+    }
+
+    var infoBottomsheet: InfoBottomsheet? = null
+    fun showInfoBottomsheet(title: String, desc: String) {
+        dismissLoading()
+        dismissInfoBottomsheet()
+
+        infoBottomsheet = InfoBottomsheet.newInstance(title, desc)
+        infoBottomsheet?.show(supportFragmentManager, InfoBottomsheet::class.java.simpleName)
+    }
+
+    fun dismissInfoBottomsheet() {
+        infoBottomsheet?.dismiss()
+        infoBottomsheet = null
     }
 }
