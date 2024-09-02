@@ -23,7 +23,10 @@ interface FeatureNetworkRepository {
      * @param sslCertificatePinner Allows the addition of an SSL certificate pinner to the OkHttpClient for extra security by pinning specific certificates. If set to null, no certificate pinning is applied.
      */
     fun getOkHttpClientBuilder(
-        useLoggingInterceptor: Boolean = true,
+        connectTimeout: Long? = null,
+        readTimeout: Long? = null,
+        writeTimeout: Long? = null,
+        useLoggingInterceptor: Boolean = false,
         sslCertificatePinner: CertificatePinner? = null
     ): OkHttpClient.Builder
 

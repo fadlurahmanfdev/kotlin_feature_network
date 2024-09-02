@@ -10,4 +10,8 @@ class ExampleNetworkUseCaseImpl(
     override fun getPostById(id: Int): Observable<PostResponse> {
         return repositoryDatasource.getPostById(id)
     }
+
+    override fun getPostByIdIncorrectSSL(id: Int): Observable<PostResponse> {
+        return repositoryDatasource.getPostByIdIncorrectSSL(id)
+    }
 }
