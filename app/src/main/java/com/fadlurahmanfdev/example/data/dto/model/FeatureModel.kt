@@ -1,4 +1,4 @@
-package co.id.fadlurahmanfdev.kotlin_feature_rtc.kotlin_feature_network.example.data.dto.model
+package com.fadlurahmanfdev.example.data.dto.model
 
 import androidx.annotation.DrawableRes
 

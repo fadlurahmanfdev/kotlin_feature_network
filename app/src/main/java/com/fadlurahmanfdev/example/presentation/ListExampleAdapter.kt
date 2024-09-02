@@ -1,4 +1,4 @@
-package co.id.fadlurahmanfdev.kotlin_feature_rtc.kotlin_feature_network.example.presentation
+package com.fadlurahmanfdev.example.presentation
 
 import android.view.LayoutInflater
 import android.view.View
@@ -6,8 +6,8 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import co.id.fadlurahmanfdev.kotlin_feature_rtc.kotlin_feature_network.example.R
-import co.id.fadlurahmanfdev.kotlin_feature_rtc.kotlin_feature_network.example.data.dto.model.FeatureModel
+import com.fadlurahmanfdev.example.R
+import com.fadlurahmanfdev.example.data.dto.model.FeatureModel
 
 class ListExampleAdapter : RecyclerView.Adapter<ListExampleAdapter.ViewHolder>() {
     val items: ArrayList<FeatureModel> = arrayListOf()

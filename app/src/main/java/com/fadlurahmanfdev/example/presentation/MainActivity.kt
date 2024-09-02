@@ -1,4 +1,4 @@
-package co.id.fadlurahmanfdev.kotlin_feature_rtc.kotlin_feature_network.example.presentation
+package com.fadlurahmanfdev.example.presentation
 
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
@@ -6,13 +6,13 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.RecyclerView
+import com.fadlurahmanfdev.example.R
 import com.fadlurahmanfdev.kotlin_feature_network.data.repository.FeatureNetworkRepository
 import com.fadlurahmanfdev.kotlin_feature_network.data.repository.FeatureNetworkRepositoryImpl
-import co.id.fadlurahmanfdev.kotlin_feature_rtc.kotlin_feature_network.example.R
-import co.id.fadlurahmanfdev.kotlin_feature_rtc.kotlin_feature_network.example.data.api.BankMasIdentityAPI
-import co.id.fadlurahmanfdev.kotlin_feature_rtc.kotlin_feature_network.example.data.dto.model.FeatureModel
-import co.id.fadlurahmanfdev.kotlin_feature_rtc.kotlin_feature_network.example.data.repository.RepositoryDatasourceImpl
-import co.id.fadlurahmanfdev.kotlin_feature_rtc.kotlin_feature_network.example.domain.ExampleNetworkUseCaseImpl
+import com.fadlurahmanfdev.example.data.api.BankMasIdentityAPI
+import com.fadlurahmanfdev.example.data.dto.model.FeatureModel
+import com.fadlurahmanfdev.example.data.repository.RepositoryDatasourceImpl
+import com.fadlurahmanfdev.example.domain.ExampleNetworkUseCaseImpl
 import hu.akarnokd.rxjava3.retrofit.RxJava3CallAdapterFactory
 
 class MainActivity : AppCompatActivity(), ListExampleAdapter.Callback {
