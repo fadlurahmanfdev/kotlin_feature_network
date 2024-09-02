@@ -1,8 +1,8 @@
 package com.fadlurahmanfdev.example.domain
 
-import com.fadlurahmanfdev.example.data.dto.response.CreateGuestSessionResponse
+import com.fadlurahmanfdev.example.data.dto.response.PostResponse
 import io.reactivex.rxjava3.core.Observable
 
 interface ExampleNetworkUseCase {
-    fun generateGuestSession(): Observable<CreateGuestSessionResponse>
+    fun getPostById(id:Int): Observable<PostResponse>
 }

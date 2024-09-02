@@ -9,9 +9,10 @@ import androidx.recyclerview.widget.RecyclerView
 import com.fadlurahmanfdev.example.R
 import com.fadlurahmanfdev.kotlin_feature_network.data.repository.FeatureNetworkRepository
 import com.fadlurahmanfdev.kotlin_feature_network.data.repository.FeatureNetworkRepositoryImpl
-import com.fadlurahmanfdev.example.data.api.BankMasIdentityAPI
+import com.fadlurahmanfdev.example.data.api.JsonPlaceHolderAPI
 import com.fadlurahmanfdev.example.data.dto.model.FeatureModel
 import com.fadlurahmanfdev.example.data.repository.RepositoryDatasourceImpl
+import com.fadlurahmanfdev.example.data.state.FetchNetworkState
 import com.fadlurahmanfdev.example.domain.ExampleNetworkUseCaseImpl
 import hu.akarnokd.rxjava3.retrofit.RxJava3CallAdapterFactory
 
@@ -21,9 +22,9 @@ class MainActivity : AppCompatActivity(), ListExampleAdapter.Callback {
     private val features: List<FeatureModel> = listOf<FeatureModel>(
         FeatureModel(
             featureIcon = R.drawable.baseline_developer_mode_24,
-            title = "Generate Guest Token",
-            desc = "Generate Guest Token",
-            enum = "GENERATE_GUEST_TOKEN"
+            title = "Fetched Post",
+            desc = "Fetched Post - OK",
+            enum = "FETCHED_POST_OK"
         ),
     )
 
@@ -46,9 +47,9 @@ class MainActivity : AppCompatActivity(), ListExampleAdapter.Callback {
 
         viewModel = MainViewModel(
             exampleNetworkUseCase = ExampleNetworkUseCaseImpl(
-                repositoryDatasourceImpl = RepositoryDatasourceImpl(
-                    identityBankMasApi = networkRepository.createAPI(
-                        baseUrl = "https://api.bankmas.my.id/",
+                repositoryDatasource = RepositoryDatasourceImpl(
+                    jsonPlaceHolderAPI = networkRepository.createAPI(
+                        baseUrl = "https://jsonplaceholder.typicode.com/",
                         okHttpClient = networkRepository.getOkHttpClientBuilder(
                             useLoggingInterceptor = true,
                             sslCertificatePinner = networkRepository.getCertificatePinnerBuilder()
@@ -65,7 +66,7 @@ class MainActivity : AppCompatActivity(), ListExampleAdapter.Callback {
                             )
                             .build(),
                         callAdapterFactory = RxJava3CallAdapterFactory.create(),
-                        clazz = BankMasIdentityAPI::class.java
+                        clazz = JsonPlaceHolderAPI::class.java
                     )
                 )
             )
@@ -79,12 +80,29 @@ class MainActivity : AppCompatActivity(), ListExampleAdapter.Callback {
         adapter.setList(features)
         adapter.setHasStableIds(true)
         rv.adapter = adapter
+
+        viewModel.fetchedPostState.observe(this){ state ->
+            when(state){
+                is FetchNetworkState.FAILED -> {
+
+                }
+                FetchNetworkState.LOADING -> {
+
+                }
+                FetchNetworkState.SUCCESS -> {
+
+                }
+                else -> {
+
+                }
+            }
+        }
     }
 
     override fun onClicked(item: FeatureModel) {
         when (item.enum) {
-            "GENERATE_GUEST_TOKEN" -> {
-                viewModel.generateGuestSession()
+            "FETCHED_POST_OK" -> {
+                viewModel.fetchedPostOk()
             }
         }
     }
