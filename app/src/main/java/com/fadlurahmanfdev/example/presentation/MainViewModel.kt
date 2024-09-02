@@ -1,7 +1,7 @@
-package co.id.fadlurahmanfdev.kotlin_feature_rtc.kotlin_feature_network.example.presentation
+package com.fadlurahmanfdev.example.presentation
 
 import androidx.lifecycle.ViewModel
-import co.id.fadlurahmanfdev.kotlin_feature_rtc.kotlin_feature_network.example.domain.ExampleNetworkUseCase
+import com.fadlurahmanfdev.example.domain.ExampleNetworkUseCase
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.schedulers.Schedulers
