@@ -1,15 +1,24 @@
 package com.fadlurahmanfdev.example.data.repository
 
-import com.fadlurahmanfdev.example.data.api.BankMasIdentityAPI
-import com.fadlurahmanfdev.example.data.dto.request.CreateGuestSessionRequest
-import com.fadlurahmanfdev.example.data.dto.response.BaseIdentityBankMasResponse
-import com.fadlurahmanfdev.example.data.dto.response.CreateGuestSessionResponse
+import com.fadlurahmanfdev.example.data.api.JsonPlaceHolderAPI
+import com.fadlurahmanfdev.example.data.dto.response.PostResponse
 import io.reactivex.rxjava3.core.Observable
+import okio.IOException
 
 class RepositoryDatasourceImpl(
-    private val identityBankMasApi: BankMasIdentityAPI
+    private val jsonPlaceHolderAPI: JsonPlaceHolderAPI
 ) : RepositoryDatasource {
-    override fun generateGuestSession(request: CreateGuestSessionRequest): Observable<BaseIdentityBankMasResponse<CreateGuestSessionResponse>> {
-        return identityBankMasApi.generateGuestSession(request)
+    override fun getPostById(id: Int): Observable<PostResponse> {
+        return jsonPlaceHolderAPI.getPostById(id).map { response ->
+            if (!response.isSuccessful) {
+                throw IOException("")
+            }
+
+            if (response.body() == null) {
+                throw IOException()
+            }
+
+            response.body()!!
+        }
     }
 }
