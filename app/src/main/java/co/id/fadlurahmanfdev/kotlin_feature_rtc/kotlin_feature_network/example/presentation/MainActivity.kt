@@ -6,8 +6,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.RecyclerView
-import co.id.fadlurahmanfdev.kotlin_feature_network.data.repository.FeatureNetworkRepository
-import co.id.fadlurahmanfdev.kotlin_feature_network.data.repository.FeatureNetworkRepositoryImpl
+import com.fadlurahmanfdev.kotlin_feature_network.data.repository.FeatureNetworkRepository
+import com.fadlurahmanfdev.kotlin_feature_network.data.repository.FeatureNetworkRepositoryImpl
 import co.id.fadlurahmanfdev.kotlin_feature_rtc.kotlin_feature_network.example.R
 import co.id.fadlurahmanfdev.kotlin_feature_rtc.kotlin_feature_network.example.data.api.BankMasIdentityAPI
 import co.id.fadlurahmanfdev.kotlin_feature_rtc.kotlin_feature_network.example.data.dto.model.FeatureModel
