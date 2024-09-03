@@ -1,10 +1,14 @@
 package com.fadlurahmanfdev.kotlin_feature_network.data.repository
 
 import android.content.Context
+import androidx.annotation.RawRes
 import com.chuckerteam.chucker.api.ChuckerInterceptor
 import okhttp3.CertificatePinner
 import okhttp3.OkHttpClient
 import retrofit2.CallAdapter
+import javax.net.ssl.SSLSocketFactory
+import javax.net.ssl.TrustManager
+import javax.net.ssl.X509TrustManager
 
 interface FeatureNetworkRepository {
     /**
@@ -17,17 +21,29 @@ interface FeatureNetworkRepository {
      */
     fun getCertificatePinnerBuilder(): CertificatePinner.Builder
 
+    fun getTrustManagerFromResource(
+        context: Context,
+        @RawRes certificateResource: Int,
+        alias: String,
+    ): Array<TrustManager>
+
+    fun getTrustManager(x509TrustManager: X509TrustManager? = null): Array<TrustManager>
+
+    fun getSslSocketFactory(trustManagers: Array<TrustManager>): SSLSocketFactory
+
     /**
      * The getOkHttpClientBuilder function provides a way to configure an OkHttpClient with optional logging and SSL certificate pinning. Adjusting these parameters customizes the client's behavior according to specific needs.
      * @param useLoggingInterceptor Indicates whether to include a logging interceptor in the OkHttpClient. When set to true, network requests and responses will be logged, which is useful for debugging.
-     * @param sslCertificatePinner Allows the addition of an SSL certificate pinner to the OkHttpClient for extra security by pinning specific certificates. If set to null, no certificate pinning is applied.
+     * @param certificatePinner Allows the addition of an SSL certificate pinner to the OkHttpClient for extra security by pinning specific certificates. If set to null, no certificate pinning is applied.
      */
     fun getOkHttpClientBuilder(
         connectTimeout: Long? = null,
         readTimeout: Long? = null,
         writeTimeout: Long? = null,
         useLoggingInterceptor: Boolean = false,
-        sslCertificatePinner: CertificatePinner? = null
+        certificatePinner: CertificatePinner? = null,
+        sslSocketFactory: SSLSocketFactory? = null,
+        x509TrustManager: X509TrustManager? = null,
     ): OkHttpClient.Builder
 
     /**
