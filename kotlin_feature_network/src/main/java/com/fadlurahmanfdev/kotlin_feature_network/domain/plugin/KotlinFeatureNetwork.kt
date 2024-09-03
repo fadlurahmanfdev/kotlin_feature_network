@@ -11,6 +11,7 @@ import java.security.SecureRandom
 import java.security.cert.CertificateFactory
 import java.security.cert.X509Certificate
 import java.util.concurrent.TimeUnit
+import javax.net.ssl.HostnameVerifier
 import javax.net.ssl.SSLContext
 import javax.net.ssl.SSLSocketFactory
 import javax.net.ssl.TrustManager
@@ -85,6 +86,7 @@ class KotlinFeatureNetwork {
             certificatePinner: CertificatePinner?,
             sslSocketFactory: SSLSocketFactory?,
             x509TrustManager: X509TrustManager?,
+            hostnameVerifier: HostnameVerifier?,
         ): OkHttpClient.Builder {
             return OkHttpClient.Builder().apply {
                 if (connectTimeout != null) {
@@ -99,13 +101,15 @@ class KotlinFeatureNetwork {
                     this.writeTimeout(writeTimeout, TimeUnit.MILLISECONDS)
                 }
 
-                if (sslSocketFactory != null || x509TrustManager != null) {
+                if (sslSocketFactory != null || x509TrustManager != null || hostnameVerifier != null) {
                     assert(sslSocketFactory != null)
                     assert(x509TrustManager != null)
+                    assert(hostnameVerifier != null)
                 }
 
-                if (sslSocketFactory != null && x509TrustManager != null) {
+                if (sslSocketFactory != null && x509TrustManager != null && hostnameVerifier != null) {
                     this.sslSocketFactory(sslSocketFactory, x509TrustManager)
+                    this.hostnameVerifier(hostnameVerifier)
                 }
 
                 if (certificatePinner != null) {

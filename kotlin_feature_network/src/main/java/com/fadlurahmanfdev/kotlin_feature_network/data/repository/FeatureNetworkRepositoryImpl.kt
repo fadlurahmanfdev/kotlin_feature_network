@@ -10,6 +10,7 @@ import okhttp3.OkHttpClient
 import retrofit2.CallAdapter
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import javax.net.ssl.HostnameVerifier
 import javax.net.ssl.SSLSocketFactory
 import javax.net.ssl.TrustManager
 import javax.net.ssl.X509TrustManager
@@ -74,7 +75,8 @@ class FeatureNetworkRepositoryImpl : FeatureNetworkRepository {
         useLoggingInterceptor: Boolean,
         certificatePinner: CertificatePinner?,
         sslSocketFactory: SSLSocketFactory?,
-        x509TrustManager: X509TrustManager?
+        x509TrustManager: X509TrustManager?,
+        hostnameVerifier: HostnameVerifier?
     ): OkHttpClient.Builder {
         return KotlinFeatureNetwork.getOkHttpClientBuilder(
             connectTimeout = connectTimeout,
@@ -83,7 +85,8 @@ class FeatureNetworkRepositoryImpl : FeatureNetworkRepository {
             useLoggingInterceptor = useLoggingInterceptor,
             certificatePinner = certificatePinner,
             sslSocketFactory = sslSocketFactory,
-            x509TrustManager = x509TrustManager
+            x509TrustManager = x509TrustManager,
+            hostnameVerifier = hostnameVerifier,
         )
     }
 

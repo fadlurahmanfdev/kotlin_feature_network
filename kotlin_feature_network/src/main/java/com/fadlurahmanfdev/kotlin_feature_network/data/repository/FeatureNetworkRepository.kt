@@ -6,6 +6,7 @@ import com.chuckerteam.chucker.api.ChuckerInterceptor
 import okhttp3.CertificatePinner
 import okhttp3.OkHttpClient
 import retrofit2.CallAdapter
+import javax.net.ssl.HostnameVerifier
 import javax.net.ssl.SSLSocketFactory
 import javax.net.ssl.TrustManager
 import javax.net.ssl.X509TrustManager
@@ -44,6 +45,7 @@ interface FeatureNetworkRepository {
         certificatePinner: CertificatePinner? = null,
         sslSocketFactory: SSLSocketFactory? = null,
         x509TrustManager: X509TrustManager? = null,
+        hostnameVerifier: HostnameVerifier? = null,
     ): OkHttpClient.Builder
 
     /**
