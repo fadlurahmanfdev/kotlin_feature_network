@@ -1,7 +1,7 @@
 # Overview
 
 `kotlin_feature_network` is a library designed to simplify and enhance network operations in
-Flutter applications.
+Android applications.
 This library provides a suite of tools and methods to manage network requests efficiently, including
 Dio client setup, logging, request identification, and SSL security.
 
@@ -97,16 +97,16 @@ val okHttpClient = networkRepository.getOkHttpClientBuilder(
 
 #### Get Chucker
 
-Chucker is an HTTP Inspector tool for Flutter which helps debugging http requests. It catches and
+Chucker is an HTTP Inspector tool for Kotlin which helps debugging http requests. It catches and
 stores http requests and responses, which can be viewed via simple UI.
 
 <table>
   <tr>
     <td>
-		<img width="250px" src="https://raw.githubusercontent.com/fadlurahmanfdev/flutter_feature_network/master/media/chucker_notification.png">
+		<img width="250px" src="https://raw.githubusercontent.com/fadlurahmanfdev/kotlin_feature_network/master/media/chucker_notification.png">
     </td>
     <td>
-       <img width="250px" src="https://raw.githubusercontent.com/fadlurahmanfdev/flutter_feature_network/master/media/chucker_page.png">
+       <img width="250px" src="https://raw.githubusercontent.com/fadlurahmanfdev/kotlin_feature_network/master/media/chucker_page.png">
     </td>
   </tr>
 </table>
@@ -128,10 +128,10 @@ to debugging HTTP.
 <table>
   <tr>
     <td>
-		<img width="250px" src="https://raw.githubusercontent.com/fadlurahmanfdev/flutter_feature_network/master/media/logger_interceptor_part1.png">
+		<img width="250px" src="https://raw.githubusercontent.com/fadlurahmanfdev/kotlin_feature_network/master/media/logger_response_part1.png">
     </td>
     <td>
-       <img width="250px" src="https://raw.githubusercontent.com/fadlurahmanfdev/flutter_feature_network/master/media/logger_interceptor_part2.png">
+       <img width="250px" src="https://raw.githubusercontent.com/fadlurahmanfdev/kotlin_feature_network/master/media/logger_interceptor_part2.png">
     </td>
   </tr>
 </table>
