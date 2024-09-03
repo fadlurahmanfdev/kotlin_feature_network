@@ -1,4 +1,4 @@
-package com.fadlurahmanfdev.example.domain
+package com.fadlurahmanfdev.example.domain.usecase
 
 import com.fadlurahmanfdev.example.data.dto.response.PostResponse
 import com.fadlurahmanfdev.example.data.repository.RepositoryDatasource
@@ -13,5 +13,9 @@ class ExampleNetworkUseCaseImpl(
 
     override fun getPostByIdIncorrectSSL(id: Int): Observable<PostResponse> {
         return repositoryDatasource.getPostByIdIncorrectSSL(id)
+    }
+
+    override fun getPostByIdRetryIncorrectSSL(id: Int): Observable<PostResponse> {
+        return repositoryDatasource.getPostByIdRetryIncorrectSSL(id)
     }
 }
