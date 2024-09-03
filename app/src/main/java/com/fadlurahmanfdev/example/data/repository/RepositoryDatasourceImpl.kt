@@ -8,6 +8,7 @@ import okio.IOException
 class RepositoryDatasourceImpl(
     private val jsonPlaceHolderAPI: JsonPlaceHolderAPI,
     private val jsonPlaceHolderIncorrectSslAPI: JsonPlaceHolderAPI,
+    private val jsonPlaceHolderRetryIncorrectSslAPI: JsonPlaceHolderAPI,
 ) : RepositoryDatasource {
     override fun getPostById(id: Int): Observable<PostResponse> {
         return jsonPlaceHolderAPI.getPostById(id).map { response ->
@@ -25,6 +26,20 @@ class RepositoryDatasourceImpl(
 
     override fun getPostByIdIncorrectSSL(id: Int): Observable<PostResponse> {
         return jsonPlaceHolderIncorrectSslAPI.getPostById(id).map { response ->
+            if (!response.isSuccessful) {
+                throw IOException("")
+            }
+
+            if (response.body() == null) {
+                throw IOException()
+            }
+
+            response.body()!!
+        }
+    }
+
+    override fun getPostByIdRetryIncorrectSSL(id: Int): Observable<PostResponse> {
+        return jsonPlaceHolderRetryIncorrectSslAPI.getPostById(id).map { response ->
             if (!response.isSuccessful) {
                 throw IOException("")
             }

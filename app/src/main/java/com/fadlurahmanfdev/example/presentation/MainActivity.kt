@@ -13,7 +13,8 @@ import com.fadlurahmanfdev.example.data.api.JsonPlaceHolderAPI
 import com.fadlurahmanfdev.example.data.dto.model.FeatureModel
 import com.fadlurahmanfdev.example.data.repository.RepositoryDatasourceImpl
 import com.fadlurahmanfdev.example.data.state.FetchNetworkState
-import com.fadlurahmanfdev.example.domain.ExampleNetworkUseCaseImpl
+import com.fadlurahmanfdev.example.domain.interceptor.ExampleSSLInterceptor
+import com.fadlurahmanfdev.example.domain.usecase.ExampleNetworkUseCaseImpl
 import hu.akarnokd.rxjava3.retrofit.RxJava3CallAdapterFactory
 
 class MainActivity : AppCompatActivity(), ListExampleAdapter.Callback {
@@ -31,6 +32,12 @@ class MainActivity : AppCompatActivity(), ListExampleAdapter.Callback {
             title = "Fetched Post",
             desc = "Fetched Post - Incorrect SSL",
             enum = "FETCHED_POST_INCORRECT_SSL"
+        ),
+        FeatureModel(
+            featureIcon = R.drawable.baseline_developer_mode_24,
+            title = "Fetched Post",
+            desc = "Fetched Post - Retry Incorrect SSL",
+            enum = "FETCHED_POST_RETRY_INCORRECT_SSL"
         ),
     )
 
@@ -55,7 +62,8 @@ class MainActivity : AppCompatActivity(), ListExampleAdapter.Callback {
             exampleNetworkUseCase = ExampleNetworkUseCaseImpl(
                 repositoryDatasource = RepositoryDatasourceImpl(
                     jsonPlaceHolderAPI = jsonPlaceHolderAPI,
-                    jsonPlaceHolderIncorrectSslAPI = jsonPlaceHolderIncorrectSSLAPI
+                    jsonPlaceHolderIncorrectSslAPI = jsonPlaceHolderIncorrectSSLAPI,
+                    jsonPlaceHolderRetryIncorrectSslAPI = jsonPlaceHolderRetryIncorrectSSLAPI
                 )
             )
         )
@@ -101,6 +109,10 @@ class MainActivity : AppCompatActivity(), ListExampleAdapter.Callback {
             "FETCHED_POST_INCORRECT_SSL" -> {
                 viewModel.fetchedPostIncorrectSsl()
             }
+
+            "FETCHED_POST_RETRY_INCORRECT_SSL" -> {
+                viewModel.fetchedPostRetryIncorrectSsl()
+            }
         }
     }
 
@@ -132,14 +144,15 @@ class MainActivity : AppCompatActivity(), ListExampleAdapter.Callback {
 
     lateinit var jsonPlaceHolderAPI: JsonPlaceHolderAPI
     lateinit var jsonPlaceHolderIncorrectSSLAPI: JsonPlaceHolderAPI
+    lateinit var jsonPlaceHolderRetryIncorrectSSLAPI: JsonPlaceHolderAPI
     private fun setupApiClient() {
         val networkRepository: FeatureNetworkRepository = FeatureNetworkRepositoryImpl()
         val chuckerInterceptor = networkRepository.getChuckerInterceptorBuilder(this).build()
         val jsonPlaceHolderIncorrectSslPinner = networkRepository.getCertificatePinnerBuilder()
             .add(
                 "jsonplaceholder.typicode.com",
-                "sha256/B17MJoW6Bu9Hl+JStLT4gw+gm3nSDQ3lxuj6xKQrjmU",
-                "sha256/e0IRz5Tio3GA1Xs4fUVWmH1xHDiH2dMbVtCBSkOIdqM",
+                "sha256/B17MJoW6Bu9Hl+JStLT4gw+gm3nSDQ3lxuj6xKQrjmU=",
+                "sha256/e0IRz5Tio3GA1Xs4fUVWmH1xHDiH2dMbVtCBSkOIdqM=",
                 "sha256/r/mIkG3eEpVdm+u/ko/cwxzOMo1bk4TyHIlByibiA5E="
             )
             .build()
@@ -155,10 +168,23 @@ class MainActivity : AppCompatActivity(), ListExampleAdapter.Callback {
             useLoggingInterceptor = true,
             sslCertificatePinner = jsonPlaceHolderSslPinner
         ).addInterceptor(chuckerInterceptor).build()
-        val incorrectSslOkHttpClient = networkRepository.getOkHttpClientBuilder(
+        val retryIncorrectSslOkHttpClientBuilder = networkRepository.getOkHttpClientBuilder(
             useLoggingInterceptor = true,
             sslCertificatePinner = jsonPlaceHolderIncorrectSslPinner
-        ).addInterceptor(chuckerInterceptor).build()
+        ).addInterceptor(chuckerInterceptor)
+        retryIncorrectSslOkHttpClientBuilder.addInterceptor(
+            ExampleSSLInterceptor(
+                this,
+                retryIncorrectSslOkHttpClientBuilder.build(),
+                networkRepository
+            )
+        )
+        val retryIncorrectSslOkHttpClient = retryIncorrectSslOkHttpClientBuilder.build()
+        val incorrectSslOkHttpClientBuilder = networkRepository.getOkHttpClientBuilder(
+            useLoggingInterceptor = true,
+            sslCertificatePinner = jsonPlaceHolderIncorrectSslPinner
+        ).addInterceptor(chuckerInterceptor)
+        val incorrectSslOkHttpClient = incorrectSslOkHttpClientBuilder.build()
         jsonPlaceHolderAPI = networkRepository.createAPI(
             baseUrl = "https://jsonplaceholder.typicode.com/",
             okHttpClient = okHttpClient,
@@ -168,6 +194,12 @@ class MainActivity : AppCompatActivity(), ListExampleAdapter.Callback {
         jsonPlaceHolderIncorrectSSLAPI = networkRepository.createAPI(
             baseUrl = "https://jsonplaceholder.typicode.com/",
             okHttpClient = incorrectSslOkHttpClient,
+            callAdapterFactory = RxJava3CallAdapterFactory.create(),
+            clazz = JsonPlaceHolderAPI::class.java
+        )
+        jsonPlaceHolderRetryIncorrectSSLAPI = networkRepository.createAPI(
+            baseUrl = "https://jsonplaceholder.typicode.com/",
+            okHttpClient = retryIncorrectSslOkHttpClient,
             callAdapterFactory = RxJava3CallAdapterFactory.create(),
             clazz = JsonPlaceHolderAPI::class.java
         )
