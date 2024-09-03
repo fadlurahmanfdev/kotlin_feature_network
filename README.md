@@ -131,7 +131,7 @@ to debugging HTTP.
 		<img width="250px" src="https://raw.githubusercontent.com/fadlurahmanfdev/kotlin_feature_network/master/media/logger_response_part1.png">
     </td>
     <td>
-       <img width="250px" src="https://raw.githubusercontent.com/fadlurahmanfdev/kotlin_feature_network/master/media/logger_interceptor_part2.png">
+       <img width="250px" src="https://raw.githubusercontent.com/fadlurahmanfdev/kotlin_feature_network/master/media/logger_response_part2.png">
     </td>
   </tr>
 </table>
