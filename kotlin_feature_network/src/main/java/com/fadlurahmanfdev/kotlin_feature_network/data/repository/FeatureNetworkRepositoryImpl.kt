@@ -4,13 +4,15 @@ import android.content.Context
 import com.chuckerteam.chucker.api.ChuckerCollector
 import com.chuckerteam.chucker.api.ChuckerInterceptor
 import com.chuckerteam.chucker.api.RetentionManager
+import com.fadlurahmanfdev.kotlin_feature_network.domain.plugin.KotlinFeatureNetwork
 import okhttp3.CertificatePinner
 import okhttp3.OkHttpClient
-import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.CallAdapter
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import java.util.concurrent.TimeUnit
+import javax.net.ssl.SSLSocketFactory
+import javax.net.ssl.TrustManager
+import javax.net.ssl.X509TrustManager
 
 class FeatureNetworkRepositoryImpl : FeatureNetworkRepository {
     /**
@@ -37,46 +39,52 @@ class FeatureNetworkRepositoryImpl : FeatureNetworkRepository {
         return CertificatePinner.Builder()
     }
 
+    override fun getTrustManagerFromResource(
+        context: Context,
+        certificateResource: Int,
+        alias: String
+    ): Array<TrustManager> {
+        return KotlinFeatureNetwork.getTrustManagerFromResource(
+            context = context,
+            certificateResource = certificateResource,
+            alias = alias
+        )
+    }
+
+    override fun getTrustManager(x509TrustManager: X509TrustManager?): Array<TrustManager> {
+        return KotlinFeatureNetwork.getTrustManager(x509TrustManager)
+    }
+
+    override fun getSslSocketFactory(trustManagers: Array<TrustManager>): SSLSocketFactory {
+        return KotlinFeatureNetwork.getSslSocketFactory(trustManagers)
+    }
+
     /**
      * The getOkHttpClientBuilder function provides a way to configure an OkHttpClient with optional logging and SSL certificate pinning. Adjusting these parameters customizes the client's behavior according to specific needs.
      * @param connectTimeout Sets the maximum time allowed for establishing a connection, in milliseconds. If null, the default timeout is used.
      * @param readTimeout Specifies the maximum time allowed for reading data from the server, in milliseconds. If null, the default timeout is applied.
      * @param writeTimeout Determines the maximum time allowed for writing data to the server, in milliseconds. If null, the default timeout is used.
      * @param useLoggingInterceptor Indicates whether to include a logging interceptor in the OkHttpClient. When set to true, network requests and responses will be logged, which is useful for debugging.
-     * @param sslCertificatePinner Allows the addition of an SSL certificate pinner to the OkHttpClient for extra security by pinning specific certificates. If set to null, no certificate pinning is applied.
+     * @param certificatePinner Allows the addition of an SSL certificate pinner to the OkHttpClient for extra security by pinning specific certificates. If set to null, no certificate pinning is applied.
      */
     override fun getOkHttpClientBuilder(
         connectTimeout: Long?,
         readTimeout: Long?,
         writeTimeout: Long?,
         useLoggingInterceptor: Boolean,
-        sslCertificatePinner: CertificatePinner?
+        certificatePinner: CertificatePinner?,
+        sslSocketFactory: SSLSocketFactory?,
+        x509TrustManager: X509TrustManager?
     ): OkHttpClient.Builder {
-        return OkHttpClient.Builder().apply {
-            if (connectTimeout != null) {
-                this.connectTimeout(connectTimeout, TimeUnit.MILLISECONDS)
-            }
-
-            if (readTimeout != null) {
-                this.readTimeout(readTimeout, TimeUnit.MILLISECONDS)
-            }
-
-            if (writeTimeout != null) {
-                this.writeTimeout(writeTimeout, TimeUnit.MILLISECONDS)
-            }
-
-            if (sslCertificatePinner != null) {
-                certificatePinner(sslCertificatePinner)
-            }
-
-            if (useLoggingInterceptor) {
-                addInterceptor(
-                    HttpLoggingInterceptor().apply {
-                        level = HttpLoggingInterceptor.Level.BODY
-                    },
-                )
-            }
-        }
+        return KotlinFeatureNetwork.getOkHttpClientBuilder(
+            connectTimeout = connectTimeout,
+            readTimeout = readTimeout,
+            writeTimeout = writeTimeout,
+            useLoggingInterceptor = useLoggingInterceptor,
+            certificatePinner = certificatePinner,
+            sslSocketFactory = sslSocketFactory,
+            x509TrustManager = x509TrustManager
+        )
     }
 
     /**
