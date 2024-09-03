@@ -166,11 +166,11 @@ class MainActivity : AppCompatActivity(), ListExampleAdapter.Callback {
             .build()
         val okHttpClient = networkRepository.getOkHttpClientBuilder(
             useLoggingInterceptor = true,
-            sslCertificatePinner = jsonPlaceHolderSslPinner
+            certificatePinner = jsonPlaceHolderSslPinner
         ).addInterceptor(chuckerInterceptor).build()
         val retryIncorrectSslOkHttpClientBuilder = networkRepository.getOkHttpClientBuilder(
             useLoggingInterceptor = true,
-            sslCertificatePinner = jsonPlaceHolderIncorrectSslPinner
+            certificatePinner = jsonPlaceHolderIncorrectSslPinner
         ).addInterceptor(chuckerInterceptor)
         retryIncorrectSslOkHttpClientBuilder.addInterceptor(
             ExampleSSLInterceptor(
@@ -182,7 +182,7 @@ class MainActivity : AppCompatActivity(), ListExampleAdapter.Callback {
         val retryIncorrectSslOkHttpClient = retryIncorrectSslOkHttpClientBuilder.build()
         val incorrectSslOkHttpClientBuilder = networkRepository.getOkHttpClientBuilder(
             useLoggingInterceptor = true,
-            sslCertificatePinner = jsonPlaceHolderIncorrectSslPinner
+            certificatePinner = jsonPlaceHolderIncorrectSslPinner
         ).addInterceptor(chuckerInterceptor)
         val incorrectSslOkHttpClient = incorrectSslOkHttpClientBuilder.build()
         jsonPlaceHolderAPI = networkRepository.createAPI(
