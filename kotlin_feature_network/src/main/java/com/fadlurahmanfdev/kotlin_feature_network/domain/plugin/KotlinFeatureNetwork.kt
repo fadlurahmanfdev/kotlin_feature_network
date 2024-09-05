@@ -1,6 +1,8 @@
 package com.fadlurahmanfdev.kotlin_feature_network.domain.plugin
 
+import android.annotation.SuppressLint
 import android.content.Context
+import android.util.Log
 import androidx.annotation.RawRes
 import okhttp3.CertificatePinner
 import okhttp3.OkHttpClient
@@ -50,19 +52,35 @@ class KotlinFeatureNetwork {
             return trustManagerFactory.trustManagers
         }
 
+        @SuppressLint("CustomX509TrustManager")
         fun getTrustManager(x509TrustManager: X509TrustManager? = null): Array<TrustManager> {
-
             return arrayOf<TrustManager>(x509TrustManager ?: object : X509TrustManager {
                 override fun checkClientTrusted(
                     chain: Array<out X509Certificate>?,
                     authType: String?
                 ) {
+                    Log.d(
+                        KotlinFeatureNetwork::class.java.simpleName,
+                        "checkClientTrusted - auth type: $authType"
+                    )
+                    Log.d(
+                        KotlinFeatureNetwork::class.java.simpleName,
+                        "checkClientTrusted - chain size: ${chain?.size ?: 0}"
+                    )
                 }
 
                 override fun checkServerTrusted(
                     chain: Array<out X509Certificate>?,
                     authType: String?
                 ) {
+                    Log.d(
+                        KotlinFeatureNetwork::class.java.simpleName,
+                        "checkServerTrusted - auth type: $authType"
+                    )
+                    Log.d(
+                        KotlinFeatureNetwork::class.java.simpleName,
+                        "checkServerTrusted- chain size: ${chain?.size ?: 0}"
+                    )
                 }
 
                 override fun getAcceptedIssuers(): Array<X509Certificate> {
