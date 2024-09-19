@@ -4,6 +4,9 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.util.Log
 import androidx.annotation.RawRes
+import com.chuckerteam.chucker.api.ChuckerCollector
+import com.chuckerteam.chucker.api.ChuckerInterceptor
+import com.chuckerteam.chucker.api.RetentionManager
 import okhttp3.CertificatePinner
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -25,6 +28,43 @@ import javax.net.ssl.X509TrustManager
 
 class KotlinFeatureNetwork {
     companion object {
+        /**
+         * Creates a ChuckerInterceptor.Builder configured with the provided Context.
+         *
+         * This interceptor is used to inspect and debug HTTP requests and responses within the application.
+         * Chucker displays network traffic in a user-friendly interface, making it easier to debug API calls.
+         * The interceptor logs network traffic, displays notifications, and stores the logs for a defined retention period.
+         *
+         * @param context The context used to initialize Chucker components. This is typically the application
+         *                or activity context.
+         * @return A configured ChuckerInterceptor.Builder that can be used with OkHttpClient for network request
+         *         inspection.
+         *
+         * Usage:
+         * val chuckerInterceptor = getChuckerInterceptorBuilder(context).build()
+         * val okHttpClient = OkHttpClient.Builder().addInterceptor(chuckerInterceptor).build()
+         */
+        fun getChuckerInterceptorBuilder(context: Context): ChuckerInterceptor.Builder {
+            val chuckerCollector = ChuckerCollector(
+                context = context,
+                showNotification = true,
+                retentionPeriod = RetentionManager.Period.ONE_DAY
+            )
+
+            return ChuckerInterceptor.Builder(context)
+                .collector(chuckerCollector)
+                .maxContentLength(Long.MAX_VALUE)
+                .alwaysReadResponseBody(true)
+                .createShortcut(false)
+        }
+
+        /**
+         * Generates a CertificatePinner.Builder, which is used to build a certificate pinner. This pinner ensures that only specified SSL certificates are accepted for secure connections, enhancing the security of network communications.
+         */
+        fun getCertificatePinnerBuilder(): CertificatePinner.Builder {
+            return CertificatePinner.Builder()
+        }
+
         /**
          * Retrieves an array of TrustManagers that trusts the certificate provided in the resources.
          *

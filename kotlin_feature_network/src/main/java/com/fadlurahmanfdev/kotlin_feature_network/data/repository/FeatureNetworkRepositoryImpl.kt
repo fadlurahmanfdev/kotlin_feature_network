@@ -20,24 +20,14 @@ class FeatureNetworkRepositoryImpl : FeatureNetworkRepository {
      * Creates a ChuckerInterceptor.Builder configured with the provided Context. This interceptor is used for inspecting and debugging HTTP requests and responses within the application.
      */
     override fun getChuckerInterceptorBuilder(context: Context): ChuckerInterceptor.Builder {
-        val chuckerCollector = ChuckerCollector(
-            context = context,
-            showNotification = true,
-            retentionPeriod = RetentionManager.Period.ONE_DAY
-        )
-
-        return ChuckerInterceptor.Builder(context)
-            .collector(chuckerCollector)
-            .maxContentLength(Long.MAX_VALUE)
-            .alwaysReadResponseBody(true)
-            .createShortcut(false)
+        return KotlinFeatureNetwork.getChuckerInterceptorBuilder(context)
     }
 
     /**
      * Generates a CertificatePinner.Builder, which is used to build a certificate pinner. This pinner ensures that only specified SSL certificates are accepted for secure connections, enhancing the security of network communications.
      */
     override fun getCertificatePinnerBuilder(): CertificatePinner.Builder {
-        return CertificatePinner.Builder()
+        return KotlinFeatureNetwork.getCertificatePinnerBuilder()
     }
 
     /**
