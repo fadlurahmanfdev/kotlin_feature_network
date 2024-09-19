@@ -1,0 +1,15 @@
+name: Create Tag Release
+
+on:
+  push:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout V3
+        uses: actions/checkout@v3
+      - name: Check TAG Version
+        run: |
+          gradlew.bat tasks --all
+          
