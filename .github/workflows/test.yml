@@ -13,9 +13,8 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v3
       - name: Gradlew Tasks
         run: |
           ./gradlew tasks --all
+          ./gradlew :kotlin_feature_network:publishMavenPublicationToMavenCentralRepository
           
