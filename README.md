@@ -7,25 +7,76 @@ Dio client setup, logging, request identification, and SSL security.
 
 ## Methods
 
+#### Get TrustManager - From Resource @RawRes
+
+Retrieves an array of TrustManagers that trusts the certificate provided in the resources.
+
+```kotlin
+val trustManagers = getTrustManagerFromResource(context, R.raw.my_certificate, "myAlias")
+```
+
+| Parameter Name        | Type     | Required | Description                                                                             |
+|-----------------------|----------|----------|-----------------------------------------------------------------------------------------|
+| `context`             | Context  | yes      | The application context used to access the raw resources.                               |
+| `certificateResource` | @RawRes  | yes      | The resource ID of the certificate (in .crt or .pem format) stored in the 'raw' folder. |
+| `alias`               | String   | yes      | A unique alias used to identify the certificate in the KeyStore.                        |
+
+#### Get TrustManager
+
+Retrieves an array of TrustManagers that trusts the certificate provided in the resources.
+
+```kotlin
+val trustManagers = getTrustManager() // Uses default TrustManager.
+// or
+val trustManagers = getTrustManager(customTrustManager) // Uses a custom TrustManager.
+```
+
+| Parameter Name      | Type             | Required | Description                                                                                                                                                            |
+|---------------------|------------------|----------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `x509TrustManager`  | X509TrustManager | no       | An optional custom X509TrustManager that can be passed to manage certificate trust. If null, a default implementation is provided which only logs certificate details. |
+
+#### Get SSL Socket Factory
+
+This function generates an SSLSocketFactory based on the array of TrustManagers passed as a parameter.
+
+```kotlin
+val trustManagers = getTrustManagerFromResource(context, R.raw.my_certificate, "myAlias") 
+val sslSocketFactory = getSslSocketFactory(trustManagers)
+```
+
+| Parameter Name   | Type                | Required | Description                                                    |
+|------------------|---------------------|----------|----------------------------------------------------------------|
+| `trustManagers`  | Array<TrustManager> | yes      | The array of TrustManagers used to validate SSL certificates.  |
+
+
 #### Get OK HTTP Client Builder
 
 This function configures an OkHttpClient.Builder with specified timeout settings, optional logging,
 and SSL certificate pinning, offering flexibility for network operations.
 
 ```kotlin
-val networkRepository: FeatureNetworkRepository = FeatureNetworkRepositoryImpl()
-val okHttpClient = networkRepository.getOkHttpClientBuilder(
+val clientBuilder = getOkHttpClientBuilder(
+    onnectTimeout = 10000L,
+    readTimeout = 10000L,
+    writeTimeout = 10000L,
     useLoggingInterceptor = true,
-).build()
+    certificatePinner = myCertificatePinner,
+    sslSocketFactory = mySslSocketFactory,
+    x509TrustManager = myTrustManager,
+    hostnameVerifier = myHostnameVerifier
+)
 ```
 
-| Parameter Name          | Type              | Required | Description                                                                 |
-|-------------------------|-------------------|----------|-----------------------------------------------------------------------------|
-| `connectTimeout`        | Long              | no       | The maximum time allowed for establishing a connection in milliseconds.     |
-| `readTimeout`           | Long              | no       | The maximum time allowed for reading data from the server, in milliseconds. |
-| `sendTimeout`           | Long              | no       | The maximum time allowed for writing data to the server, in milliseconds.   |
-| `useLoggingInterceptor` | bool              | no       | Indicates whether a logging interceptor should be included.                 |
-| `sslCertificatePinner`  | CertificatePinner | no       | The addition of an SSL certificate pinner for securing connections.         |
+| Parameter Name            | Type                | Required | Description                                                                 |
+|---------------------------|---------------------|----------|-----------------------------------------------------------------------------|
+| `connectTimeout`          | Long                | no       | The maximum time allowed for establishing a connection in milliseconds.     |
+| `readTimeout`             | Long                | no       | The maximum time allowed for reading data from the server, in milliseconds. |
+| `sendTimeout`             | Long                | no       | The maximum time allowed for writing data to the server, in milliseconds.   |
+| `useLoggingInterceptor`   | bool                | no       | Indicates whether a logging interceptor should be included.                 |
+| `sslCertificatePinner`    | CertificatePinner   | no       | The addition of an SSL certificate pinner for securing connections.         |
+| `sslSocketFactory`        | SSLSocketFactory    | no       | An optional SSLSocketFactory used to configure SSL/TLS connections          |
+| `x509TrustManager`        | X509TrustManager    | no       | An optional X509TrustManager used for SSL certificate trust                 |
+| `hostnameVerifier`        | HostnameVerifier    | no       | Optional hostname verifier for validating the hostname of the server.       |
 
 #### Get API Client
 
@@ -34,15 +85,11 @@ connection settings, response format, and API interface, a fully functional serv
 network requests is created.
 
 ```kotlin
-val networkRepository: FeatureNetworkRepository = FeatureNetworkRepositoryImpl()
-val okHttpClient = networkRepository.getOkHttpClientBuilder(
-    useLoggingInterceptor = true,
-).build()
-val jsonPlaceHolderAPI = networkRepository.createAPI(
-    baseUrl = "https://jsonplaceholder.typicode.com/",
-    okHttpClient = okHttpClient,
+val apiService = createAPI(
+    baseUrl = "https://api.example.com/",
+    okHttpClient = myOkHttpClient,
     callAdapterFactory = RxJava3CallAdapterFactory.create(),
-    clazz = JsonPlaceHolderAPI::class.java
+    clazz = MyApiService::class.java
 )
 ```
 
