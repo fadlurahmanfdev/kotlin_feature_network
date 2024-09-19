@@ -9,7 +9,8 @@ jobs:
     steps:
       - name: Checkout V3
         uses: actions/checkout@v3
-      - name: Check TAG Version
+      - name: Gradlew Tasks
         run: |
-          gradlew tasks --all
+          ls
+          ./gradlew tasks --all
           
