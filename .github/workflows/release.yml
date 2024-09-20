@@ -30,7 +30,7 @@ jobs:
           release_name: ${{ steps.setup.outputs.release_name }}
           draft: false
           prerelease: false
-      - name: Setup GPG Key
+      - name: Setup Maven Central Repository Credential
         run: |
           echo "${{ secrets.SIGNING_KEY }}" | gpg --dearmor > secret_key.gpg
           ls
@@ -50,7 +50,7 @@ jobs:
           echo "---------------------------||---------------------------"
           echo "---------------------------||---------------------------"
           echo "---------------------------||---------------------------"
-      - name: Gradlew Tasks
+      - name: Publish Library To Maven Central Repository
         run: |
           ./gradlew clean
           echo "---------------------------||---------------------------"
