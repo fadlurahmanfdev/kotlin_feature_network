@@ -22,6 +22,6 @@ escaped_old_version=$(printf '%s\n' "$old_version" | sed -e 's/[\/&]/\\&/g')
 escaped_new_version=$(printf '%s\n' "$new_version" | sed -e 's/[\/&]/\\&/g')
 
 # Replace the old version with the new version (macOS version)
-sed -i "s/$escaped_old_version/$escaped_new_version/g" "$file"
+sed -i '' "s/$escaped_old_version/$escaped_new_version/g" "$file"
 
 echo "Version '$old_version' replaced with '$new_version' in file $file."
