@@ -56,11 +56,12 @@ dependencies {
     api("com.github.chuckerteam.chucker:library:4.0.0")
 }
 
+val version = System.getenv("VERSION") ?: "0.0.1-beta"
 mavenPublishing {
     publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
     signAllPublications()
 
-    coordinates("com.fadlurahmanfdev", "kotlin_feature_network", "0.0.4-beta")
+    coordinates("com.fadlurahmanfdev", "kotlin_feature_network", version)
 
     pom {
         name.set("Kotlin Library Feature Network")
