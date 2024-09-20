@@ -57,6 +57,7 @@ jobs:
           echo "---------------------------||---------------------------"
           echo "---------------------------||---------------------------"
           echo "---------------------------||---------------------------"
-          sh update_version.sh kotlin_feature_network/build.gradle.kts 0.0.1-beta $releaseName
+          echo $releaseName
+          ./update_version.sh kotlin_feature_network/build.gradle.kts 0.0.1-beta $releaseName
           ./gradlew :kotlin_feature_network:publishMavenPublicationToMavenCentralRepository
           
