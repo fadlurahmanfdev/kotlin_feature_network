@@ -16,9 +16,11 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
       - name: Setup
+        id: setup
         run: |
           echo "TAG VERSION: ${{ github.ref_name }}"
           echo "RELEASE NAME: ${GITHUB_REF#refs/tags/v}"
+          echo "::set-output name=release_name::${GITHUB_REF#refs/tags/v}"
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
@@ -26,7 +28,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.TOKEN }}
         with:
           tag_name: ${{ github.ref_name }}
-          release_name: ${{ github.ref_name##v }}
+          release_name: ${{ steps.setup.outputs.release_name }}
           draft: false
           prerelease: false
       - name: Setup GPG Key
@@ -55,6 +57,6 @@ jobs:
           echo "---------------------------||---------------------------"
           echo "---------------------------||---------------------------"
           echo "---------------------------||---------------------------"
-          ./update_version.sh kotlin_feature_network/build.gradle.kts 0.0.1-beta ${{ github.ref_name##v }}
+          ./update_version.sh kotlin_feature_network/build.gradle.kts 0.0.1-beta ${{ steps.setup.outputs.release_name }}
           ./gradlew :kotlin_feature_network:publishMavenPublicationToMavenCentralRepository
           
