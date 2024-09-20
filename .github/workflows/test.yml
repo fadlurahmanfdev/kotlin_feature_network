@@ -33,12 +33,7 @@ jobs:
           echo "---------------------------||---------------------------"
           echo "---------------------------||---------------------------"
           echo "---------------------------||---------------------------"
-          echo "$SIGNING_KEY" | gpg --batch --import
-      - name: Set up GPG key
-        run: |
-
-        env:
-          SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
+          echo "${{ secrets.SIGNING_KEY }}" | gpg --batch --import
 #      - name: Gradlew Tasks
 #        run: |
 #          ./gradlew clean --info
