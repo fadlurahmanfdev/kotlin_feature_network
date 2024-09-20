@@ -60,7 +60,7 @@ mavenPublishing {
     publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
     signAllPublications()
 
-    coordinates("com.fadlurahmanfdev", "kotlin_feature_network", "0.0.3")
+    coordinates("com.fadlurahmanfdev", "kotlin_feature_network", "0.0.4-beta")
 
     pom {
         name.set("Kotlin Library Feature Network")
