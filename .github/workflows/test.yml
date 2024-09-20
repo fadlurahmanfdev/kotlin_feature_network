@@ -22,7 +22,7 @@ jobs:
           echo "" >> gradle.properties >> gradle.properties
           echo "signing.password=${{ secrets.SIGNING_KEY_PASSWORD }}" >> gradle.properties
           echo "" >> gradle.properties >> gradle.properties
-          echo "signing.secretKeyRingFile=secring.gpg" >> gradle.properties
+          echo "signing.secretKeyRingFile=../secring.gpg" >> gradle.properties
           cat gradle.properties
       - name: Gradlew Tasks
         run: |
