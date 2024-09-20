@@ -26,6 +26,9 @@ jobs:
           cat gradle.properties
       - name: Gradlew Tasks
         run: |
-          ./gradlew tasks --all
+          ./gradlew clean
+          echo "---------------------------||---------------------------"
+          echo "---------------------------||---------------------------"
+          echo "---------------------------||---------------------------"
           ./gradlew :kotlin_feature_network:publishMavenPublicationToMavenCentralRepository
           
