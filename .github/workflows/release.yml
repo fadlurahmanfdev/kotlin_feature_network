@@ -17,9 +17,9 @@ jobs:
           distribution: 'temurin'
       - name: Check TAG Version
         run: |
-          echo "TAG VERSION: $GITHUB_REF_NAME"
           echo "TAG VERSION: ${{  github.ref_name }}"
-          export VERSION=${{ github.ref_name }}
+          echo "TAG VERSION WITHOUT V: ${GITHUB_REF#refs/tags/v}"
+          export VERSION=${GITHUB_REF#refs/tags/v}
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
