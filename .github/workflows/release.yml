@@ -15,7 +15,7 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-      - name: Check TAG Version
+      - name: Setup
         run: |
           echo "TAG VERSION: ${{  github.ref_name }}"
           echo "TAG VERSION WITHOUT V: ${GITHUB_REF#refs/tags/v}"
