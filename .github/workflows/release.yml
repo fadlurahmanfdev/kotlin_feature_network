@@ -29,24 +29,6 @@ jobs:
           release_name: ${{ github.ref_name }}
           draft: false
           prerelease: false
-      - name: Sleep for 120 seconds
-        uses: jakejarvis/wait-action@master
-        with:
-          time: '120s'
-      - name: Curl Tag Release Jitpack IO Part 1
-        uses: wei/curl@master
-        continue-on-error: true
-        with:
-          args: --verbose https://jitpack.io/com/github/fadlurahmanfdev/kotlin_feature_network/${{ github.ref_name }}/kotlin_feature_network-${{ github.ref_name }}.pom
-      - name: Sleep for 120 seconds
-        uses: jakejarvis/wait-action@master
-        with:
-          time: '120s'
-      - name: Curl Tag Release Jitpack IO Part 2
-        uses: wei/curl@master
-        continue-on-error: true
-        with:
-          args: --verbose https://jitpack.io/com/github/fadlurahmanfdev/kotlin_feature_network/${{ github.ref_name }}/kotlin_feature_network-${{ github.ref_name }}.pom
       - name: Setup GPG Key
         run: |
           echo "${{ secrets.SIGNING_KEY }}" | gpg --dearmor > secret_key.gpg
