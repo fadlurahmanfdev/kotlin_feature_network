@@ -55,6 +55,11 @@ val jsonPlaceHolderAPI = networkRepository.createAPI(
 )
 ```
 
+<p float="left">
+  <img src="https://raw.githubusercontent.com/fadlurahmanfdev/kotlin_feature_network/master/media/chucker-example-1.png" width="49%" />
+  <img src="https://raw.githubusercontent.com/fadlurahmanfdev/kotlin_feature_network/master/media/chucker-example-2.png" width="49%" />
+</p>
+
 ### SSL Pinning
 
 SSL or Socket Secure Layer Pinning is a security technique to trust only hardcode certificate or public key. 
