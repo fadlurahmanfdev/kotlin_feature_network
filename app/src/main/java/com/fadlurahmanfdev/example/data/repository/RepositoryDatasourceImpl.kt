@@ -9,9 +9,24 @@ class RepositoryDatasourceImpl(
     private val jsonPlaceHolderAPI: JsonPlaceHolderAPI,
     private val jsonPlaceHolderIncorrectSslAPI: JsonPlaceHolderAPI,
     private val jsonPlaceHolderRetryIncorrectSslAPI: JsonPlaceHolderAPI,
+    private val jsonPlaceHolderUsingRawResPem: JsonPlaceHolderAPI,
 ) : RepositoryDatasource {
     override fun getPostById(id: Int): Observable<PostResponse> {
         return jsonPlaceHolderAPI.getPostById(id).map { response ->
+            if (!response.isSuccessful) {
+                throw IOException("")
+            }
+
+            if (response.body() == null) {
+                throw IOException()
+            }
+
+            response.body()!!
+        }
+    }
+
+    override fun getPostByIdRawResPem(id: Int): Observable<PostResponse> {
+        return jsonPlaceHolderUsingRawResPem.getPostById(id).map { response ->
             if (!response.isSuccessful) {
                 throw IOException("")
             }

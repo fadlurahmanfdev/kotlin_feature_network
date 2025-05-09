@@ -1,5 +1,6 @@
 package com.fadlurahmanfdev.networx.interceptor
 
+import android.util.Log
 import okhttp3.Interceptor
 import okhttp3.Response
 import javax.net.ssl.SSLHandshakeException
@@ -11,8 +12,10 @@ abstract class NetworxSSLInterceptor : Interceptor {
         try {
             return chain.proceed(request)
         } catch (e: SSLHandshakeException) {
+            Log.e(this::class.java.simpleName, "Networx-LOG %%% failed to handshake connection")
             return onSSLHandshakeException(chain, e)
         } catch (e: SSLPeerUnverifiedException) {
+            Log.e(this::class.java.simpleName, "Networx-LOG %%% failed to verify ssl")
             return onSSLPeerUnverifiedException(chain, e)
         } catch (e: Exception) {
             throw e

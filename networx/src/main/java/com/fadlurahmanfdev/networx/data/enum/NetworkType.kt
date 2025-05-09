@@ -6,5 +6,6 @@ enum class NetworkType(val rawCode: Int) {
     WIFI(NetworkCapabilities.TRANSPORT_WIFI),
     CELLULAR(NetworkCapabilities.TRANSPORT_CELLULAR),
     ETHERNET(NetworkCapabilities.TRANSPORT_ETHERNET),
+    VPN(NetworkCapabilities.TRANSPORT_VPN),
     UNKNOWN(-1),
 }

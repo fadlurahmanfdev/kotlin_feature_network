@@ -29,7 +29,7 @@ class ExampleNetworxSSLInterceptor(
             )
             .build()
         return client.newBuilder().certificatePinner(certificatePinner)
-            .addInterceptor(networkRepository.getChuckerInterceptorBuilder(context).build())
+            .addInterceptor(networkRepository.getChuckerInterceptorBuilder(context, false).build())
             .build().newCall(request.newBuilder().addHeader("X-Retry", "true").build()).execute()
     }
 

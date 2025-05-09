@@ -18,9 +18,35 @@ class MainViewModel(
     private val _fetchedPostState = MutableLiveData<FetchNetworkState>()
     val fetchedPostState: LiveData<FetchNetworkState> = _fetchedPostState
 
-    fun fetchedPostOk() {
+    fun fetchedPostOkPinningPublicKey() {
         _fetchedPostState.value = FetchNetworkState.LOADING
-        compositeDisposable.add(exampleNetworkUseCase.getPostById(1)
+        compositeDisposable.add(exampleNetworkUseCase.getPostByIdPinningPublicKey(1)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(
+                { response ->
+                    _fetchedPostState.value = FetchNetworkState.SUCCESS
+                },
+                { exception ->
+                    if (exception is FeatureException) {
+                        _fetchedPostState.value = FetchNetworkState.FAILED(
+                            title = exception.title,
+                            message = exception.message ?: "-"
+                        )
+                    } else {
+                        _fetchedPostState.value = FetchNetworkState.FAILED(
+                            title = "Failed / Gagal",
+                            message = exception.message ?: "-"
+                        )
+                    }
+                },
+                {}
+            ))
+    }
+
+    fun fetchedPostOkPinningRawResPem() {
+        _fetchedPostState.value = FetchNetworkState.LOADING
+        compositeDisposable.add(exampleNetworkUseCase.getPostByIdRawResPem(1)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(

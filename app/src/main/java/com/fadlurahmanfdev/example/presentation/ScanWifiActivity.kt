@@ -16,7 +16,7 @@ import com.google.android.material.snackbar.Snackbar
 
 @OptIn(ExperimentalStdlibApi::class)
 class ScanWifiActivity : AppCompatActivity(), WifiAdapter.Callback {
-    private lateinit var featureWifi: NetworxWifi
+    private lateinit var networxWifi: NetworxWifi
 
     private lateinit var rv: RecyclerView
     private lateinit var main: ConstraintLayout
@@ -40,17 +40,17 @@ class ScanWifiActivity : AppCompatActivity(), WifiAdapter.Callback {
         rv.adapter = adapter
 
 
-        featureWifi = NetworxWifi(applicationContext)
+        networxWifi = NetworxWifi(applicationContext)
     }
 
     override fun onPause() {
-        featureWifi.stopScanNearbyWifi(this)
+        networxWifi.stopScanNearbyWifi(this)
         super.onPause()
     }
 
     override fun onResume() {
         super.onResume()
-        featureWifi.scanNearbyWifi(this, object : NetworxWifi.ScanWifiCallback {
+        networxWifi.scanNearbyWifi(this, object : NetworxWifi.ScanWifiCallback {
             override fun onSuccessScanNearbyWifi(wifiResults: List<FeatureWifiInfoModel>) {
                 adapter.setList(wifiResults)
             }

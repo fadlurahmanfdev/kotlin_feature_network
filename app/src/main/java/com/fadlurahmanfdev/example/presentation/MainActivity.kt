@@ -23,6 +23,8 @@ import com.fadlurahmanfdev.networx.NetworxManager
 import com.fadlurahmanfdev.networx.base.BaseNetworxAPI
 import com.fadlurahmanfdev.networx.data.enum.NetworkType
 import com.fadlurahmanfdev.networx.data.repository.NetworxStateListener
+import javax.net.ssl.HostnameVerifier
+import javax.net.ssl.X509TrustManager
 
 class MainActivity : AppCompatActivity(), ListExampleAdapter.Callback {
     lateinit var viewModel: MainViewModel
@@ -35,21 +37,27 @@ class MainActivity : AppCompatActivity(), ListExampleAdapter.Callback {
     private val features: List<FeatureModel> = listOf<FeatureModel>(
         FeatureModel(
             featureIcon = R.drawable.baseline_developer_mode_24,
-            title = "Fetched Post",
-            desc = "Fetched Post - OK",
-            enum = "FETCHED_POST_OK"
+            title = "Check whether connected to network",
+            desc = "Check whether connected to network",
+            enum = "IS_CONNECTED_TO_NETWORK"
         ),
         FeatureModel(
             featureIcon = R.drawable.baseline_developer_mode_24,
-            title = "Fetched Post",
-            desc = "Fetched Post - Incorrect SSL",
-            enum = "FETCHED_POST_INCORRECT_SSL"
+            title = "Check whether connected to wifi",
+            desc = "Check whether connected to wifi",
+            enum = "IS_CONNECTED_TO_WIFI"
         ),
         FeatureModel(
             featureIcon = R.drawable.baseline_developer_mode_24,
-            title = "Fetched Post",
-            desc = "Fetched Post - Retry Incorrect SSL",
-            enum = "FETCHED_POST_RETRY_INCORRECT_SSL"
+            title = "Check whether connected to cellular",
+            desc = "Check whether connected to cellular",
+            enum = "IS_CONNECTED_TO_CELLULAR"
+        ),
+        FeatureModel(
+            featureIcon = R.drawable.baseline_developer_mode_24,
+            title = "Check whether connected to ethernet",
+            desc = "Check whether connected to ethernet",
+            enum = "IS_CONNECTED_TO_ETHERNET"
         ),
         FeatureModel(
             featureIcon = R.drawable.baseline_developer_mode_24,
@@ -62,6 +70,36 @@ class MainActivity : AppCompatActivity(), ListExampleAdapter.Callback {
             title = "Remove Listen Connectivity Change",
             desc = "Remove Listen Connectivity Change",
             enum = "REMOVE_LISTEN_CONNECTIVITY_CHANGE"
+        ),
+        FeatureModel(
+            featureIcon = R.drawable.baseline_developer_mode_24,
+            title = "--- API REQUEST ---",
+            desc = "--------------------------------------------------",
+            enum = "DIVIDER-API-REQUEST"
+        ),
+        FeatureModel(
+            featureIcon = R.drawable.baseline_developer_mode_24,
+            title = "Fetched Post OK - Using Pinning Public Key",
+            desc = "Fetched Post OK - Using Pinning Public Key",
+            enum = "FETCHED_POST_OK_USING_PINNING_PUBLIC_KEY"
+        ),
+        FeatureModel(
+            featureIcon = R.drawable.baseline_developer_mode_24,
+            title = "Fetched Post OK - Using Raw Res Pem",
+            desc = "Fetched Post OK - Using Raw Res Pem",
+            enum = "FETCHED_POST_OK_USING_RAW_RES_PEM"
+        ),
+        FeatureModel(
+            featureIcon = R.drawable.baseline_developer_mode_24,
+            title = "Fetched Post",
+            desc = "Fetched Post - Incorrect SSL",
+            enum = "FETCHED_POST_INCORRECT_SSL"
+        ),
+        FeatureModel(
+            featureIcon = R.drawable.baseline_developer_mode_24,
+            title = "Fetched Post",
+            desc = "Fetched Post - Retry Incorrect SSL",
+            enum = "FETCHED_POST_RETRY_INCORRECT_SSL"
         ),
         FeatureModel(
             featureIcon = R.drawable.baseline_developer_mode_24,
@@ -115,8 +153,9 @@ class MainActivity : AppCompatActivity(), ListExampleAdapter.Callback {
             exampleNetworkUseCase = ExampleNetworkUseCaseImpl(
                 repositoryDatasource = RepositoryDatasourceImpl(
                     jsonPlaceHolderAPI = jsonPlaceHolderAPI,
+                    jsonPlaceHolderUsingRawResPem = jsonPlaceHolderRawResPemAPI,
                     jsonPlaceHolderIncorrectSslAPI = jsonPlaceHolderIncorrectSSLAPI,
-                    jsonPlaceHolderRetryIncorrectSslAPI = jsonPlaceHolderRetryIncorrectSSLAPI
+                    jsonPlaceHolderRetryIncorrectSslAPI = jsonPlaceHolderRetryIncorrectSSLAPI,
                 )
             )
         )
@@ -155,8 +194,44 @@ class MainActivity : AppCompatActivity(), ListExampleAdapter.Callback {
 
     override fun onClicked(item: FeatureModel) {
         when (item.enum) {
-            "FETCHED_POST_OK" -> {
-                viewModel.fetchedPostOk()
+            "IS_CONNECTED_TO_NETWORK" -> {
+                val isConnected = networxManager.isConnected()
+                Log.d(
+                    this::class.java.simpleName,
+                    "Example-Networx-LOG %%% is connected: $isConnected"
+                )
+            }
+
+            "IS_CONNECTED_TO_WIFI" -> {
+                val isConnected = networxManager.isConnectedToWifi()
+                Log.d(
+                    this::class.java.simpleName,
+                    "Example-Networx-LOG %%% is connected to wifi: $isConnected"
+                )
+            }
+
+            "IS_CONNECTED_TO_CELLULAR" -> {
+                val isConnected = networxManager.isConnectedToCellular()
+                Log.d(
+                    this::class.java.simpleName,
+                    "Example-Networx-LOG %%% is connected to cellular: $isConnected"
+                )
+            }
+
+            "IS_CONNECTED_TO_ETHERNET" -> {
+                val isConnected = networxManager.isConnectedToEthernet()
+                Log.d(
+                    this::class.java.simpleName,
+                    "Example-Networx-LOG %%% is connected to ethernet: $isConnected"
+                )
+            }
+
+            "FETCHED_POST_OK_USING_PINNING_PUBLIC_KEY" -> {
+                viewModel.fetchedPostOkPinningPublicKey()
+            }
+
+            "FETCHED_POST_OK_USING_RAW_RES_PEM" -> {
+                viewModel.fetchedPostOkPinningRawResPem()
             }
 
             "FETCHED_POST_INCORRECT_SSL" -> {
@@ -168,10 +243,6 @@ class MainActivity : AppCompatActivity(), ListExampleAdapter.Callback {
             }
 
             "LISTEN_CONNECTIVITY_CHANGE" -> {
-//                appNetworkStateReceiver = AppNetworkStateReceiver()
-//                val intentFilter = IntentFilter("android.net.conn.CONNECTIVITY_CHANGE")
-//                registerReceiver(appNetworkStateReceiver, intentFilter)
-
                 networxManager.listenNetworkState(this, object : NetworxStateListener {
                     override fun onConnectedNetworkTypeChange(type: NetworkType) {
                         Log.d(
@@ -192,10 +263,6 @@ class MainActivity : AppCompatActivity(), ListExampleAdapter.Callback {
 
             "REMOVE_LISTEN_CONNECTIVITY_CHANGE" -> {
                 networxManager.removeListenerNetworkState(this)
-//                if (appNetworkStateReceiver != null) {
-//                    unregisterReceiver(appNetworkStateReceiver)
-//                    appNetworkStateReceiver = null
-//                }
             }
 
             "SCAN_NEARBY_WIFI" -> {
@@ -254,17 +321,10 @@ class MainActivity : AppCompatActivity(), ListExampleAdapter.Callback {
     lateinit var jsonPlaceHolderAPI: JsonPlaceHolderAPI
     lateinit var jsonPlaceHolderIncorrectSSLAPI: JsonPlaceHolderAPI
     lateinit var jsonPlaceHolderRetryIncorrectSSLAPI: JsonPlaceHolderAPI
+    lateinit var jsonPlaceHolderRawResPemAPI: JsonPlaceHolderAPI
     private fun setupApiClient() {
         val networkRepository: NetworxAPIRepository = NetworxAPI()
-        val chuckerInterceptor = networkRepository.getChuckerInterceptorBuilder(this).build()
-        val jsonPlaceHolderIncorrectSslPinner = networkRepository.getCertificatePinnerBuilder()
-            .add(
-                "jsonplaceholder.typicode.com",
-                "sha256/B17MJoW6Bu9Hl+JStLT4gw+gm3nSDQ3lxuj6xKQrjmU=",
-                "sha256/e0IRz5Tio3GA1Xs4fUVWmH1xHDiH2dMbVtCBSkOIdqM=",
-                "sha256/r/mIkG3eEpVdm+u/ko/cwxzOMo1bk4TyHIlByibiA5E="
-            )
-            .build()
+        val chuckerInterceptor = networkRepository.getChuckerInterceptorBuilder(this, true).build()
         val jsonPlaceHolderSslPinner = networkRepository.getCertificatePinnerBuilder()
             .add(
                 "jsonplaceholder.typicode.com",
@@ -273,10 +333,43 @@ class MainActivity : AppCompatActivity(), ListExampleAdapter.Callback {
                 "sha256/mEflZT5enoR1FuXLgYYGqnVEoZvmf9c2bVBpiOjYQ0c="
             )
             .build()
-        val okHttpClient = networkRepository.getOkHttpClientBuilder(
+        val jsonPlaceHolderIncorrectSslPinner = networkRepository.getCertificatePinnerBuilder()
+            .add(
+                "jsonplaceholder.typicode.com",
+                "sha256/B17MJoW6Bu9Hl+JStLT4gw+gm3nSDQ3lxuj6xKQrjmU=",
+                "sha256/e0IRz5Tio3GA1Xs4fUVWmH1xHDiH2dMbVtCBSkOIdqM=",
+                "sha256/r/mIkG3eEpVdm+u/ko/cwxzOMo1bk4TyHIlByibiA5E="
+            )
+            .build()
+
+        // Generate Trust Manager
+        val jsonPlaceholderTrustManager = networxAPI.getTrustManagerFromResource(
+            context = applicationContext,
+            alias = "jsonplaceholder-cert",
+            certificateResource = R.raw.jsonplaceholder_cert
+        )
+        val sslSocketFactory = networxAPI.getSslSocketFactory(jsonPlaceholderTrustManager)
+        val hostNameVerifier = HostnameVerifier { hostname, session ->
+            Log.d(this::class.java.simpleName, "Example-Networx-LOG %%% - hostname: $hostname, session: ${session.isValid}")
+            Log.d(this::class.java.simpleName, "Example-Networx-LOG %%% - last accessed time: ${session.lastAccessedTime}, protocol: ${session.protocol}")
+            hostname == "jsonplaceholder.typicode.com"
+        }
+
+        val okHttpClientBuilder = networkRepository.getOkHttpClientBuilder(
             useLoggingInterceptor = true,
             certificatePinner = jsonPlaceHolderSslPinner
-        ).addInterceptor(chuckerInterceptor).build()
+        ).addInterceptor(chuckerInterceptor)
+        val okHttpClientRawResPemBuilder = networkRepository.getOkHttpClientBuilder(
+            useLoggingInterceptor = true,
+            sslSocketFactory = sslSocketFactory,
+            x509TrustManager = jsonPlaceholderTrustManager.filterIsInstance<X509TrustManager>()
+                .firstOrNull(),
+            hostnameVerifier = hostNameVerifier
+        ).addInterceptor(chuckerInterceptor)
+        val incorrectSslOkHttpClientBuilder = networkRepository.getOkHttpClientBuilder(
+            useLoggingInterceptor = true,
+            certificatePinner = jsonPlaceHolderIncorrectSslPinner
+        ).addInterceptor(chuckerInterceptor)
         val retryIncorrectSslOkHttpClientBuilder = networkRepository.getOkHttpClientBuilder(
             useLoggingInterceptor = true,
             certificatePinner = jsonPlaceHolderIncorrectSslPinner
@@ -288,15 +381,19 @@ class MainActivity : AppCompatActivity(), ListExampleAdapter.Callback {
                 networkRepository
             )
         )
-        val retryIncorrectSslOkHttpClient = retryIncorrectSslOkHttpClientBuilder.build()
-        val incorrectSslOkHttpClientBuilder = networkRepository.getOkHttpClientBuilder(
-            useLoggingInterceptor = true,
-            certificatePinner = jsonPlaceHolderIncorrectSslPinner
-        ).addInterceptor(chuckerInterceptor)
+
+        val okHttpClient= okHttpClientBuilder.build()
+        val okHttpClientRawResPem= okHttpClientRawResPemBuilder.build()
         val incorrectSslOkHttpClient = incorrectSslOkHttpClientBuilder.build()
+        val retryIncorrectSslOkHttpClient = retryIncorrectSslOkHttpClientBuilder.build()
         jsonPlaceHolderAPI = networkRepository.createAPI(
             baseUrl = "https://jsonplaceholder.typicode.com/",
             okHttpClient = okHttpClient,
+            clazz = JsonPlaceHolderAPI::class.java
+        )
+        jsonPlaceHolderRawResPemAPI = networkRepository.createAPI(
+            baseUrl = "https://jsonplaceholder.typicode.com/",
+            okHttpClient = okHttpClientRawResPem,
             clazz = JsonPlaceHolderAPI::class.java
         )
         jsonPlaceHolderIncorrectSSLAPI = networkRepository.createAPI(

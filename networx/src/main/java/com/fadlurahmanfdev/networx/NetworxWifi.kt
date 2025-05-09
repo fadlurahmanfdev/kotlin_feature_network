@@ -5,12 +5,14 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.pm.PackageManager
 import android.location.LocationManager
 import android.net.ConnectivityManager
 import android.net.wifi.WifiInfo
 import android.net.wifi.WifiManager
 import android.os.Build
 import android.util.Log
+import androidx.core.content.ContextCompat
 import com.fadlurahmanfdev.networx.constant.NetworxExceptionConstant
 import com.fadlurahmanfdev.networx.data.model.FeatureWifiInfoModel
 import com.fadlurahmanfdev.networx.exception.NetworxException
@@ -97,12 +99,17 @@ class NetworxWifi(context: Context) {
             return
         }
 
+        if (ContextCompat.checkSelfPermission(
+                activity.applicationContext,
+                android.Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            throw NetworxExceptionConstant.UNABLE_SCAN_NEARBY_WIFI_CAUSED_BY_ACCESS_FINE_LOCATION
+        }
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             if (!locationService.isLocationEnabled) {
-                throw NetworxException(
-                    code = NetworxExceptionConstant.UNABLE_SCAN_NEARBY_WIFI_CAUSED_BY_GPS_LOCATION_NOT_ENABLED.code,
-                    message = NetworxExceptionConstant.UNABLE_SCAN_NEARBY_WIFI_CAUSED_BY_GPS_LOCATION_NOT_ENABLED.message,
-                )
+                throw NetworxExceptionConstant.UNABLE_SCAN_NEARBY_WIFI_CAUSED_BY_GPS_LOCATION_NOT_ENABLED
             }
         }
 
@@ -115,12 +122,15 @@ class NetworxWifi(context: Context) {
             val success = wifiManager.startScan()
             if (success) {
                 _isProcessScanningWifiNearby = true
-                Log.d(this::class.java.simpleName, "successfully scan nearby wifi")
+                Log.d(
+                    this::class.java.simpleName,
+                    "Networx-LOG %%% - successfully scan nearby wifi"
+                )
             } else {
-                Log.w(this::class.java.simpleName, "failed to scan nearby wifi")
+                Log.w(this::class.java.simpleName, "Networx-LOG %%% - failed to scan nearby wifi")
             }
         } catch (e: Throwable) {
-            Log.e(this::class.java.simpleName, "failed to scan nearby wifi: ${e.message}")
+            Log.e(this::class.java.simpleName, "Networx-LOG %%% - failed to scan nearby wifi", e)
         }
     }
 

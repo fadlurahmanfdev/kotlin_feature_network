@@ -20,6 +20,12 @@ class NetworxManager(context: Context) : NetworxStateRepository {
         context.applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
 
     private var _connectedNetworkType: NetworkType? = null
+
+    /**
+     * Check current connected network type.
+     *
+     * @return [NetworkType] connected network type. (e.g., [NetworkType.WIFI], [NetworkType.CELLULAR], [NetworkType.ETHERNET], etc)
+     * */
     override fun connectedNetworkType(): NetworkType? = _connectedNetworkType
 
     private var networxStateListener: NetworxStateListener? = null
@@ -31,6 +37,10 @@ class NetworxManager(context: Context) : NetworxStateRepository {
         if (_isConnectedToInternet) {
             if (isConnectedToEthernet()) {
                 _connectedNetworkType = NetworkType.ETHERNET
+            }
+
+            if (isConnectedToVPN()){
+                _connectedNetworkType = NetworkType.VPN
             }
 
             if (isConnectedToWifi()) {
@@ -54,6 +64,14 @@ class NetworxManager(context: Context) : NetworxStateRepository {
             if (hasTransportEthernet && connectedNetworkType() != NetworkType.ETHERNET) {
                 _connectedNetworkType = NetworkType.ETHERNET
                 networxStateListener?.onConnectedNetworkTypeChange(NetworkType.ETHERNET)
+                return
+            }
+
+            val hasTransportVPN =
+                networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_VPN)
+            if (hasTransportVPN && connectedNetworkType() != NetworkType.VPN) {
+                _connectedNetworkType = NetworkType.VPN
+                networxStateListener?.onConnectedNetworkTypeChange(NetworkType.VPN)
                 return
             }
 
@@ -111,9 +129,9 @@ class NetworxManager(context: Context) : NetworxStateRepository {
     }
 
     /**
-     * Listen network state whether the configurable network of device is changed
+     * Listen network state whether the configurable network of device is changed.
      * */
-    fun listenNetworkState(activity: Activity, listener: NetworxStateListener) {
+    override fun listenNetworkState(activity: Activity, listener: NetworxStateListener) {
         _isConnectedToInternet = isConnected()
 
         activity.registerReceiver(
@@ -127,6 +145,7 @@ class NetworxManager(context: Context) : NetworxStateRepository {
             .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
             .addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR)
             .addTransportType(NetworkCapabilities.TRANSPORT_ETHERNET)
+            .addTransportType(NetworkCapabilities.TRANSPORT_VPN)
             .build()
 
         connectivityManager.registerNetworkCallback(networkRequest, networxTypeChangedListener)
@@ -153,10 +172,20 @@ class NetworxManager(context: Context) : NetworxStateRepository {
     override fun isConnectedToCellular(): Boolean = isConnectedToNetwork(NetworkType.CELLULAR)
 
     /**
+     * Check if device is connected to the internet through vpn
+     * */
+    override fun isConnectedToVPN(): Boolean = isConnectedToNetwork(NetworkType.VPN)
+
+    /**
      * Check if device is connected to the internet through ethernet
      * */
     override fun isConnectedToEthernet(): Boolean = isConnectedToNetwork(NetworkType.ETHERNET)
 
+    /**
+     * Check if device is connected to specific network type like wifi, cellular, etc.
+     *
+     * @param type network type (e.g., wifi, cellular)
+     * */
     override fun isConnectedToNetwork(type: NetworkType): Boolean {
         return when {
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.M -> {
@@ -165,6 +194,7 @@ class NetworxManager(context: Context) : NetworxStateRepository {
                     NetworkType.WIFI -> NetworkCapabilities.TRANSPORT_WIFI
                     NetworkType.CELLULAR -> NetworkCapabilities.TRANSPORT_CELLULAR
                     NetworkType.ETHERNET -> NetworkCapabilities.TRANSPORT_ETHERNET
+                    NetworkType.VPN -> NetworkCapabilities.TRANSPORT_VPN
                     else -> throw NetworxExceptionConstant.UNKNOWN_NETWORK_TYPE
                 }
                 connectivityManager.getNetworkCapabilities(network)
@@ -176,6 +206,7 @@ class NetworxManager(context: Context) : NetworxStateRepository {
                     NetworkType.WIFI -> ConnectivityManager.TYPE_WIFI
                     NetworkType.CELLULAR -> ConnectivityManager.TYPE_MOBILE
                     NetworkType.ETHERNET -> ConnectivityManager.TYPE_ETHERNET
+                    NetworkType.VPN -> ConnectivityManager.TYPE_VPN
                     else -> throw NetworxExceptionConstant.UNKNOWN_NETWORK_TYPE
                 }
                 connectivityManager.activeNetworkInfo?.type == connectivityType
@@ -183,6 +214,9 @@ class NetworxManager(context: Context) : NetworxStateRepository {
         }
     }
 
+    /**
+     * Check whether device is connected through network.
+     * */
     override fun isConnected(): Boolean =
-        isConnectedToWifi() || isConnectedToCellular() || isConnectedToEthernet()
+        isConnectedToWifi() || isConnectedToCellular() || isConnectedToEthernet() || isConnectedToVPN()
 }

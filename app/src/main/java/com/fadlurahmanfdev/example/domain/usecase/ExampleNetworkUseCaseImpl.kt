@@ -7,8 +7,12 @@ import io.reactivex.rxjava3.core.Observable
 class ExampleNetworkUseCaseImpl(
     private val repositoryDatasource: RepositoryDatasource
 ) : ExampleNetworkUseCase {
-    override fun getPostById(id: Int): Observable<PostResponse> {
+    override fun getPostByIdPinningPublicKey(id: Int): Observable<PostResponse> {
         return repositoryDatasource.getPostById(id)
+    }
+
+    override fun getPostByIdRawResPem(id: Int): Observable<PostResponse> {
+        return repositoryDatasource.getPostByIdRawResPem(id)
     }
 
     override fun getPostByIdIncorrectSSL(id: Int): Observable<PostResponse> {

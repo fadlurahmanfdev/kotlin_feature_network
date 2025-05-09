@@ -1,223 +1,112 @@
 # Overview
 
-`kotlin_feature_network` is a library designed to simplify and enhance network operations in
-Android applications.
+`networx` is a library designed to simplify and enhance network operations.
 
 This library provides a suite of tools and methods to manage network requests efficiently, including
 Dio client setup, logging, wifi feature, and SSL security.
 
 ## Key Features
 
-- Utils Connectivity Implementation
-- API Request Implementation
-- Wifi Implementation
+- Generate Retrofit Client
+- Network State Handler
+- HTTP Inspector (via Chucker)
+- SSL Handler
 
-## Utils Connectivity Implementation
+## Networx Manager
 
-### Internet Connection
+### Network State
 
-Check whether device connected to internet through (wifi, mobile, ethernet, etc).
+Check whether device is connected through some network.
 
 ```kotlin
-val featureNetwork = KotlinFeatureNetwork(applicationContext)
-val isConnectedToWifi = featureNetwork.isConnectedToWifi()
-// process is connected to wifi
-val isConnectedToCellular = featureNetwork.isConnectedToCellular()
-// process is connected to cellular
-val isConnectedToEthernet = featureNetwork.isConnectedToEthernet()
-// process is connected to ethernet
+var networxManager: NetworxManager = NetworxManager(applicationContext)
+
+// Check whether device is connected through internet
+val isConnected = networxManager.isConnected()
+
+// Check whether device is connected through wifi
+val isConnected = networxManager.isConnectedToWifi()
+
+// Check whether device is connected through mobile cellular
+val isConnected = networxManager.isConnectedToCellular()
+
+// Check whether device is connected through ethernet
+val isConnected = networxManager.isConnectedToEthernet()
 ```
 
-## Feature - API Request
+## API Request
 
-### Get TrustManager - From Resource @RawRes
+### Chucker - HTTP Inspector
 
-Retrieves an array of TrustManagers that trusts the certificate provided in the resources.
+Dev tools to help whether the api request is work successfully.
 
-```kotlin
-val featureAPIRequest = KotlinFeatureAPIRequest()
-val trustManagers = featureAPIRequest.getTrustManagerFromResource(context, R.raw.my_certificate, "myAlias")
-```
-
-| Parameter Name        | Type     | Required | Description                                                                             |
-|-----------------------|----------|----------|-----------------------------------------------------------------------------------------|
-| `context`             | Context  | yes      | The application context used to access the raw resources.                               |
-| `certificateResource` | @RawRes  | yes      | The resource ID of the certificate (in .crt or .pem format) stored in the 'raw' folder. |
-| `alias`               | String   | yes      | A unique alias used to identify the certificate in the KeyStore.                        |
-
-### Get TrustManager
-
-Retrieves an array of TrustManagers that trusts the certificate provided in the resources.
+Big Thanks to [Chucker](https://github.com/ChuckerTeam/chucker?tab=readme-ov-file#chucker) Library.
 
 ```kotlin
-val featureAPIRequest = KotlinFeatureAPIRequest()
-var trustManagersType1 = featureAPIRequest.getTrustManager() // Uses default TrustManager.
-// or
-var trustManagersType2 = featureAPIRequest.getTrustManager(customTrustManager) // Uses a custom TrustManager.
-```
-
-| Parameter Name      | Type             | Required | Description                                                                                                                                                            |
-|---------------------|------------------|----------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `x509TrustManager`  | X509TrustManager | no       | An optional custom X509TrustManager that can be passed to manage certificate trust. If null, a default implementation is provided which only logs certificate details. |
-
-### Get SSL Socket Factory
-
-This function generates an SSLSocketFactory based on the array of TrustManagers passed as a parameter.
-
-```kotlin
-val featureAPIRequest = KotlinFeatureAPIRequest()
-val trustManagers = featureAPIRequest.getTrustManagerFromResource(context, R.raw.my_certificate, "myAlias") 
-val sslSocketFactory = featureAPIRequest.getSslSocketFactory(trustManagers)
-```
-
-| Parameter Name   | Type                | Required | Description                                                    |
-|------------------|---------------------|----------|----------------------------------------------------------------|
-| `trustManagers`  | Array<TrustManager> | yes      | The array of TrustManagers used to validate SSL certificates.  |
-
-
-### Get OK HTTP Client Builder
-
-This function configures an OkHttpClient.Builder with specified timeout settings, optional logging,
-and SSL certificate pinning, offering flexibility for network operations.
-
-```kotlin
-val featureAPIRequest = KotlinFeatureAPIRequest()
-val clientBuilder = featureAPIRequest.getOkHttpClientBuilder(
-    onnectTimeout = 10000L,
-    readTimeout = 10000L,
-    writeTimeout = 10000L,
+val networkRepository: NetworxAPIRepository = NetworxAPI()
+val chuckerInterceptor = networkRepository.getChuckerInterceptorBuilder(this, true).build()
+val okHttpClient = networkRepository.getOkHttpClientBuilder(
     useLoggingInterceptor = true,
-    certificatePinner = myCertificatePinner,
-    sslSocketFactory = mySslSocketFactory,
-    x509TrustManager = myTrustManager,
-    hostnameVerifier = myHostnameVerifier
+).addInterceptor(chuckerInterceptor).build()
+val jsonPlaceHolderAPI = networkRepository.createAPI(
+    baseUrl = "https://jsonplaceholder.typicode.com/",
+    okHttpClient = okHttpClient,
+    clazz = JsonPlaceHolderAPI::class.java
 )
 ```
 
-| Parameter Name            | Type                | Required | Description                                                                 |
-|---------------------------|---------------------|----------|-----------------------------------------------------------------------------|
-| `connectTimeout`          | Long                | no       | The maximum time allowed for establishing a connection in milliseconds.     |
-| `readTimeout`             | Long                | no       | The maximum time allowed for reading data from the server, in milliseconds. |
-| `sendTimeout`             | Long                | no       | The maximum time allowed for writing data to the server, in milliseconds.   |
-| `useLoggingInterceptor`   | bool                | no       | Indicates whether a logging interceptor should be included.                 |
-| `sslCertificatePinner`    | CertificatePinner   | no       | The addition of an SSL certificate pinner for securing connections.         |
-| `sslSocketFactory`        | SSLSocketFactory    | no       | An optional SSLSocketFactory used to configure SSL/TLS connections          |
-| `x509TrustManager`        | X509TrustManager    | no       | An optional X509TrustManager used for SSL certificate trust                 |
-| `hostnameVerifier`        | HostnameVerifier    | no       | Optional hostname verifier for validating the hostname of the server.       |
+### SSL Pinning
 
-### Get API Client
+SSL or Socket Secure Layer Pinning is a security technique to trust only hardcode certificate or public key. 
 
-The createAPI function efficiently sets up an API service. By providing the base URL, network
-connection settings, response format, and API interface, a fully functional service for handling
-network requests is created.
-
+Example of how to do SSL Pinning using Hardcoded Public Key:
 ```kotlin
-val featureAPIRequest = KotlinFeatureAPIRequest()
-val apiService = featureAPIRequest.createAPI(
-    baseUrl = "https://api.example.com/",
-    okHttpClient = myOkHttpClient,
-    callAdapterFactory = RxJava3CallAdapterFactory.create(),
-    clazz = MyApiService::class.java
-)
-```
-
-| Parameter Name       | Type                | Required | Description                                                                                                  |
-|----------------------|---------------------|----------|--------------------------------------------------------------------------------------------------------------|
-| `baseUrl`            | String              | true     | The main URL for the API.                                                                                    |
-| `okHttpClient`       | OkHttpClient        | true     | Handles the network connection. Customization options include adding timeouts or logging network calls.      |
-| `callAdapterFactory` | CallAdapter.Factory | true     | Determines how API responses are returned, such as in a simple object format or as an RxJava Observable.     |
-| `clazz`              | Class<T>            | true     | Defines the API interface, specifying the various endpoints (actions) that can be performed within the code. |
-
-### Get Chucker Interceptor
-
-Creates a ChuckerInterceptor.Builder configured with the provided Context. This interceptor is used
-for inspecting and debugging HTTP requests and responses within the application.
-
-```kotlin
-val featureAPIRequest = KotlinFeatureAPIRequest()
-val chuckerInterceptor = featureAPIRequest.getChuckerInterceptorBuilder(this).build()
-val okHttpClient = featureAPIRequest.getOkHttpClientBuilder(useLoggingInterceptor = true)
-    .addInterceptor(chuckerInterceptor).build()
-```
-
-#### Get Certificate Pinner
-
-Generates a CertificatePinner.Builder, which is used to build a certificate pinner. This pinner
-ensures that only specified SSL certificates are accepted for secure connections, enhancing the
-security of network communications.
-
-<table>
-  <tr>
-    <td>
-		<img width="250px" src="https://raw.githubusercontent.com/fadlurahmanfdev/kotlin_feature_network/master/media/ssl_peer_unverified_exception.png">
-    </td>
-  </tr>
-</table>
-
-```kotlin
-val featureAPIRequest = KotlinFeatureAPIRequest()
-val jsonPlaceHolderIncorrectSslPinner = featureAPIRequest.getCertificatePinnerBuilder()
+val networkRepository: NetworxAPIRepository = NetworxAPI()
+val jsonPlaceHolderSslPinner = networkRepository.getCertificatePinnerBuilder()
     .add(
         "jsonplaceholder.typicode.com",
-        "sha256/B17MJoW6Bu9Hl+JStLT4gw+gm3nSDQ3lxuj6xKQrjmU",
-        "sha256/e0IRz5Tio3GA1Xs4fUVWmH1xHDiH2dMbVtCBSkOIdqM",
-        "sha256/r/mIkG3eEpVdm+u/ko/cwxzOMo1bk4TyHIlByibiA5E="
+        "sha256/IcwtGuxd2fA2t1B0ylJrjvtQm4g4vz5aVshokMHp2Qc=",
+        "sha256/kIdp6NNEd8wsugYyyIYFsi1ylMCED3hZbSR8ZFsa/A4=",
+        "sha256/mEflZT5enoR1FuXLgYYGqnVEoZvmf9c2bVBpiOjYQ0c="
     )
     .build()
-val okHttpClient = featureAPIRequest.getOkHttpClientBuilder(
+val okHttpClient = networkRepository.getOkHttpClientBuilder(
     useLoggingInterceptor = true,
-    sslCertificatePinner = jsonPlaceHolderIncorrectSslPinner
-).addInterceptor(chuckerInterceptor).build()
+    certificatePinner = jsonPlaceHolderSslPinner
+).build()
+val jsonPlaceHolderAPI = networkRepository.createAPI(
+    baseUrl = "https://jsonplaceholder.typicode.com/",
+    okHttpClient = okHttpClient,
+    clazz = JsonPlaceHolderAPI::class.java
+)
 ```
 
-### Get Chucker
-
-Chucker is an HTTP Inspector tool for Kotlin which helps debugging http requests. It catches and
-stores http requests and responses, which can be viewed via simple UI.
-
-<table>
-  <tr>
-    <td>
-		<img width="250px" src="https://raw.githubusercontent.com/fadlurahmanfdev/kotlin_feature_network/master/media/chucker_notification.png">
-    </td>
-    <td>
-       <img width="250px" src="https://raw.githubusercontent.com/fadlurahmanfdev/kotlin_feature_network/master/media/chucker_page.png">
-    </td>
-  </tr>
-</table>
-
+Example of how to do SSL Pinning using Hardcoded Raw Resource Certificate:
 ```kotlin
-// Setup Chucker
-val featureAPIRequest = KotlinFeatureAPIRequest()
-val chuckerInterceptor = featureAPIRequest.getChuckerInterceptorBuilder(this).build()
-val okHttpClient = featureAPIRequest.getOkHttpClientBuilder(
+// Generate trust manager from resource
+val jsonPlaceholderTrustManager = networxAPI.getTrustManagerFromResource(
+            context = applicationContext,
+            alias = "jsonplaceholder-cert",
+            certificateResource = R.raw.jsonplaceholder_cert
+        )
+// Generate SSL Socket from generataed trust manager
+val sslSocketFactory = networxAPI.getSslSocketFactory(jsonPlaceholderTrustManager)
+// Generate HostNameVerifier
+val hostNameVerifier = HostnameVerifier { hostname, session ->
+    hostname == "jsonplaceholder.typicode.com"
+}
+val okHttpClientRawResPem = networkRepository.getOkHttpClientBuilder(
     useLoggingInterceptor = true,
-    sslCertificatePinner = jsonPlaceHolderSslPinner
+    sslSocketFactory = sslSocketFactory,
+    x509TrustManager = jsonPlaceholderTrustManager.filterIsInstance<X509TrustManager>()
+        .firstOrNull(),
+    hostnameVerifier = hostNameVerifier
 ).addInterceptor(chuckerInterceptor).build()
-```
-
-#### Logger Interceptor
-
-Logger interceptor is an interceptor for debugging request & response in terminal. It help developer
-to debugging HTTP.
-
-<table>
-  <tr>
-    <td>
-		<img width="250px" src="https://raw.githubusercontent.com/fadlurahmanfdev/kotlin_feature_network/master/media/logger_response_part1.png">
-    </td>
-    <td>
-       <img width="250px" src="https://raw.githubusercontent.com/fadlurahmanfdev/kotlin_feature_network/master/media/logger_response_part2.png">
-    </td>
-  </tr>
-</table>
-
-```kotlin
-val featureAPIRequest = KotlinFeatureAPIRequest()
-val okHttpClient = featureAPIRequest.getOkHttpClientBuilder(
-    useLoggingInterceptor = true, // make logging interceptor -> true
-    sslCertificatePinner = jsonPlaceHolderSslPinner
-).addInterceptor(chuckerInterceptor).build()
+val jsonPlaceHolderRawResPemAPI = networkRepository.createAPI(
+    baseUrl = "https://jsonplaceholder.typicode.com/",
+    okHttpClient = okHttpClientRawResPem,
+    clazz = JsonPlaceHolderAPI::class.java
+)
 ```
 
 ## Wifi Implementation
@@ -227,14 +116,14 @@ val okHttpClient = featureAPIRequest.getOkHttpClientBuilder(
 Scan nearby wifi using Wifi Manager.
 
 ```kotlin
-val featureWifi = KotlinFeatureWifi(applicationContext)
-featureWifi.scanNearbyWifi(this, object : KotlinFeatureWifi.ScanWifiCallback {
+var networxWifi: NetworxWifi = NetworxWifi(applicationContext)
+networxWifi.scanNearbyWifi(this, object : NetworxWifi.ScanWifiCallback {
     override fun onSuccessScanNearbyWifi(wifiResults: List<FeatureWifiInfoModel>) {
-        // process wifi results
+        // on success scan nearby wifi
     }
 
-    override fun onFailedScanNearbyWifi(exception: FeatureNetworkException) {
-        // process failed scan nearby wifi
+    override fun onFailedScanNearbyWifi(exception: NetworxException) {
+        // on failed scan nearby wifi
     }
 })
 ```
@@ -244,8 +133,8 @@ featureWifi.scanNearbyWifi(this, object : KotlinFeatureWifi.ScanWifiCallback {
 After get result from scan nearby wifi, better to stop scan to avoid battery drainage.
 
 ```kotlin
-val featureWifi = KotlinFeatureWifi(applicationContext)
-featureWifi.stopScanNearbyWifi(this)
+var networxWifi: NetworxWifi = NetworxWifi(applicationContext)
+networxWifi.stopScanNearbyWifi(this)
 ```
 
 

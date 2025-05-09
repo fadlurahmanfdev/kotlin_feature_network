@@ -18,39 +18,43 @@ import javax.net.ssl.X509TrustManager
 interface NetworxAPIRepository {
     /**
      * Creates a ChuckerInterceptor.Builder configured with the provided Context. This interceptor is used for inspecting and debugging HTTP requests and responses within the application.
+     * [showNotification] whether notification should pop up every API request.
      */
-    fun getChuckerInterceptorBuilder(context: Context): ChuckerInterceptor.Builder
+    fun getChuckerInterceptorBuilder(
+        context: Context,
+        showNotification: Boolean,
+    ): ChuckerInterceptor.Builder
 
     /**
      * Generates a CertificatePinner.Builder, which is used to build a certificate pinner. This pinner ensures that only specified SSL certificates are accepted for secure connections, enhancing the security of network communications.
      */
     fun getCertificatePinnerBuilder(): CertificatePinner.Builder
 
-//    /**
-//     * Retrieves an array of TrustManagers that trusts the certificate provided in the resources.
-//     *
-//     * This function loads an X.509 certificate from the application's raw resources, creates a
-//     * KeyStore containing the certificate, and initializes a TrustManagerFactory using the
-//     * certificate in the KeyStore. The resulting TrustManagers can be used to establish a secure
-//     * connection that trusts the loaded certificate.
-//     *
-//     * @param context The application context used to access the raw resources.
-//     * @param certificateResource The resource ID of the certificate (in .crt or .pem format)
-//     *                            stored in the 'raw' folder.
-//     *                            Must be annotated with @RawRes to ensure it refers to a raw resource.
-//     * @param alias A unique alias used to identify the certificate in the KeyStore.
-//     *              This alias should be meaningful, as it will be used to retrieve or manage
-//     *              the certificate in the future.
-//     * @return An array of TrustManagers initialized with the provided certificate.
-//     *
-//     * Usage:
-//     * val trustManagers = getTrustManagerFromResource(context, R.raw.my_certificate, "myAlias")
-//     */
-//    fun getTrustManagerFromResource(
-//        context: Context,
-//        @RawRes certificateResource: Int,
-//        alias: String,
-//    ): Array<TrustManager>
+    /**
+     * Retrieves an array of TrustManagers that trusts the certificate provided in the resources.
+     *
+     * This function loads an X.509 certificate from the application's raw resources, creates a
+     * KeyStore containing the certificate, and initializes a TrustManagerFactory using the
+     * certificate in the KeyStore. The resulting TrustManagers can be used to establish a secure
+     * connection that trusts the loaded certificate.
+     *
+     * @param context The application context used to access the raw resources.
+     * @param certificateResource The resource ID of the certificate (in .crt or .pem format)
+     *                            stored in the 'raw' folder.
+     *                            Must be annotated with @RawRes to ensure it refers to a raw resource.
+     * @param alias A unique alias used to identify the certificate in the KeyStore.
+     *              This alias should be meaningful, as it will be used to retrieve or manage
+     *              the certificate in the future.
+     * @return An array of TrustManagers initialized with the provided certificate.
+     *
+     * Usage:
+     * val trustManagers = getTrustManagerFromResource(context, R.raw.my_certificate, "myAlias")
+     */
+    fun getTrustManagerFromResource(
+        context: Context,
+        @RawRes certificateResource: Int,
+        alias: String,
+    ): Array<TrustManager>
 //
 //    /**
 //     * Retrieves an array of TrustManagers, optionally using the provided X509TrustManager.
@@ -73,28 +77,27 @@ interface NetworxAPIRepository {
 //     */
 //    fun getTrustManager(x509TrustManager: X509TrustManager? = null): Array<TrustManager>
 //
-//    /**
-//     * Creates an SSLSocketFactory using the provided TrustManagers.
-//     *
-//     * This function generates an SSLSocketFactory based on the array of TrustManagers passed as a parameter.
-//     * It is designed to work in conjunction with the `getTrustManagerFromResource` and `getTrustManager`
-//     * functions to enable SSL/TLS connections that can validate certificates, either from a resource or
-//     * from a default/custom TrustManager.
-//     *
-//     * @param trustManagers The array of TrustManagers used to validate SSL certificates. This array can
-//     *                      be obtained from the `getTrustManagerFromResource` or `getTrustManager`
-//     *                      functions.
-//     * @return An SSLSocketFactory initialized with the provided TrustManagers, which can be used
-//     *         to establish secure SSL/TLS connections.
-//     *
-//     * Usage:
-//     * val trustManagers = getTrustManagerFromResource(context, R.raw.my_certificate, "myAlias")
-//     * val sslSocketFactory = getSslSocketFactory(trustManagers)
-//     *
-//     * @see NetworxAPIRepository.getTrustManagerFromResource Retrieves TrustManagers from a certificate resource.
-//     * @see NetworxAPIRepository.getTrustManager Retrieves TrustManagers from a custom or default X509TrustManager.
-//     */
-//    fun getSslSocketFactory(trustManagers: Array<TrustManager>): SSLSocketFactory
+    /**
+     * Creates an SSLSocketFactory using the provided TrustManagers.
+     *
+     * This function generates an SSLSocketFactory based on the array of TrustManagers passed as a parameter.
+     * It is designed to work in conjunction with the `getTrustManagerFromResource` and `getTrustManager`
+     * functions to enable SSL/TLS connections that can validate certificates, either from a resource or
+     * from a default/custom TrustManager.
+     *
+     * @param trustManagers The array of TrustManagers used to validate SSL certificates. This array can
+     *                      be obtained from the `getTrustManagerFromResource` or `getTrustManager`
+     *                      functions.
+     * @return An SSLSocketFactory initialized with the provided TrustManagers, which can be used
+     *         to establish secure SSL/TLS connections.
+     *
+     * Usage:
+     * val trustManagers = getTrustManagerFromResource(context, R.raw.my_certificate, "myAlias")
+     * val sslSocketFactory = getSslSocketFactory(trustManagers)
+     *
+     * @see getTrustManagerFromResource Retrieves TrustManagers from a certificate resource.
+     */
+    fun getSslSocketFactory(trustManagers: Array<TrustManager>): SSLSocketFactory
 
     /**
      * Configures an OkHttpClient builder with options for logging, timeouts, SSL socket factory, certificate pinning, and hostname verification.
@@ -163,8 +166,8 @@ interface NetworxAPIRepository {
     fun createRetrofit(
         baseUrl: String,
         okHttpClient: OkHttpClient,
-        callAdapterFactory: CallAdapter.Factory,
-        converterFactory: Converter.Factory,
+        callAdapterFactory: CallAdapter.Factory = RxJava3CallAdapterFactory.create(),
+        converterFactory: Converter.Factory = GsonConverterFactory.create(),
     ): Retrofit.Builder
 
     /**

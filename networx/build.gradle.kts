@@ -38,7 +38,7 @@ android {
 }
 
 dependencies {
-
+    implementation(libs.androidx.core.ktx)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 
@@ -60,12 +60,12 @@ mavenPublishing {
     publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
     signAllPublications()
 
-    coordinates("com.fadlurahmanfdev", "networx", "0.0.1-beta")
+    coordinates("com.fadlurahmanfdev", "networx", "0.0.1")
 
     pom {
         name.set("Kotlin Library Feature Network")
         description.set("A comprehensive library that simplifies network and HTTP requests in Kotlin. It includes an easy-to-use OkHttp client builder, Chucker interceptor for debugging, and robust SSL handling. This library streamlines the setup of network layers in your app, ensuring secure and efficient communication with minimal configuration.")
-        inceptionYear.set("2024")
+        inceptionYear.set("2025")
         url.set("https://github.com/fadlurahmanfdev/kotlin_feature_network/")
         licenses {
             license {
