@@ -142,6 +142,9 @@ var networxWifi: NetworxWifi = NetworxWifi(applicationContext)
 networxWifi.stopScanNearbyWifi(this)
 ```
 
+## Coming Soon Feature
+
+- Authenticator For Retryable Request
 
 
 
