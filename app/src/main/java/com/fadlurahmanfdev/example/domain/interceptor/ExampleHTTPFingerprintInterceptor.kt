@@ -50,7 +50,7 @@ class ExampleHTTPFingerprintInterceptor(val correct: Boolean) : Interceptor {
             throw SSLHandshakeException("CONNECTION_NOT_SECURE")
         }
 
-        return chain.proceed(chain.request());
+        return chain.proceed(chain.request())
     }
 
 }
