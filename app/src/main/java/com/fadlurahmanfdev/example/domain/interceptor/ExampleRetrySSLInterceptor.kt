@@ -2,7 +2,7 @@ package com.fadlurahmanfdev.example.domain.interceptor
 
 import android.content.Context
 import com.fadlurahmanfdev.example.data.dto.exception.FeatureException
-import com.fadlurahmanfdev.networx.data.repository.NetworxAPIRepository
+import com.fadlurahmanfdev.networx.NetworxAPI
 import com.fadlurahmanfdev.networx.interceptor.NetworxSSLInterceptor
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
@@ -10,17 +10,17 @@ import okhttp3.Response
 import javax.net.ssl.SSLHandshakeException
 import javax.net.ssl.SSLPeerUnverifiedException
 
-class ExampleNetworxSSLInterceptor(
+class ExampleRetrySSLInterceptor(
     private val context: Context,
     private val client: OkHttpClient,
-    private val networkRepository: NetworxAPIRepository
+    private val networxAPI: NetworxAPI
 ) : NetworxSSLInterceptor() {
     override fun onSSLPeerUnverifiedException(
         chain: Interceptor.Chain,
         e: SSLPeerUnverifiedException
     ): Response {
         val request = chain.request()
-        val certificatePinner = networkRepository.getCertificatePinnerBuilder()
+        val certificatePinner = networxAPI.getCertificatePinnerBuilder()
             .add(
                 "jsonplaceholder.typicode.com",
                 "sha256/IcwtGuxd2fA2t1B0ylJrjvtQm4g4vz5aVshokMHp2Qc=",
@@ -29,7 +29,7 @@ class ExampleNetworxSSLInterceptor(
             )
             .build()
         return client.newBuilder().certificatePinner(certificatePinner)
-            .addInterceptor(networkRepository.getChuckerInterceptorBuilder(context, false).build())
+            .addInterceptor(networxAPI.getChuckerInterceptorBuilder(context, false).build())
             .build().newCall(request.newBuilder().addHeader("X-Retry", "true").build()).execute()
     }
 
@@ -39,6 +39,4 @@ class ExampleNetworxSSLInterceptor(
     ): Response {
         throw FeatureException("TES TITLE SSL", "TES MESSAGE SSL")
     }
-
-
 }

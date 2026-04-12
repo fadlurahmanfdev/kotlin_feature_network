@@ -9,12 +9,12 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.fadlurahmanfdev.example.R
-import com.fadlurahmanfdev.networx.data.repository.NetworxAPIRepository
 import com.fadlurahmanfdev.example.data.api.JsonPlaceHolderAPI
 import com.fadlurahmanfdev.example.data.dto.model.FeatureModel
 import com.fadlurahmanfdev.example.data.repository.RepositoryDatasourceImpl
 import com.fadlurahmanfdev.example.data.state.FetchNetworkState
-import com.fadlurahmanfdev.example.domain.interceptor.ExampleNetworxSSLInterceptor
+import com.fadlurahmanfdev.example.domain.interceptor.ExampleHTTPFingerprintInterceptor
+import com.fadlurahmanfdev.example.domain.interceptor.ExampleRetrySSLInterceptor
 import com.fadlurahmanfdev.example.domain.usecase.ExampleNetworkUseCaseImpl
 import com.fadlurahmanfdev.example.presentation.adapter.ListExampleAdapter
 import com.fadlurahmanfdev.networx.NetworxWifi
@@ -81,25 +81,44 @@ class MainActivity : AppCompatActivity(), ListExampleAdapter.Callback {
             featureIcon = R.drawable.baseline_developer_mode_24,
             title = "Fetched Post OK - Using Pinning Public Key",
             desc = "Fetched Post OK - Using Pinning Public Key",
-            enum = "FETCHED_POST_OK_USING_PINNING_PUBLIC_KEY"
+            enum = "FETCHED_POST_OK_USING_CORRECT_PINNING_PUBLIC_KEY"
+        ),
+
+        FeatureModel(
+            featureIcon = R.drawable.baseline_developer_mode_24,
+            title = "Fetched Post Not OK - Using Pinning Public Key",
+            desc = "Fetched Post Not OK - Using Pinning Public Key",
+            enum = "FETCHED_POST_NOT_OK_USING_INCORRECT_PINNING_PUBLIC_KEY"
         ),
         FeatureModel(
             featureIcon = R.drawable.baseline_developer_mode_24,
-            title = "Fetched Post OK - Using Raw Res Pem",
-            desc = "Fetched Post OK - Using Raw Res Pem",
-            enum = "FETCHED_POST_OK_USING_RAW_RES_PEM"
+            title = "Fetched Post OK - Using Certificate From Resource",
+            desc = "Fetched Post OK - Using Certificate From Resource",
+            enum = "FETCHED_POST_OK_USING_CERT_FROM_RESOURCE"
         ),
         FeatureModel(
             featureIcon = R.drawable.baseline_developer_mode_24,
-            title = "Fetched Post",
-            desc = "Fetched Post - Incorrect SSL",
-            enum = "FETCHED_POST_INCORRECT_SSL"
+            title = "Fetched Post Not OK - Using Incorrect Fingerprint",
+            desc = "Fetched Post Not OK - Using Incorrect Fingerprint",
+            enum = "FETCHED_POST_NOT_OK_USING_INCORRECT_FINGERPRINT"
         ),
         FeatureModel(
             featureIcon = R.drawable.baseline_developer_mode_24,
-            title = "Fetched Post",
-            desc = "Fetched Post - Retry Incorrect SSL",
-            enum = "FETCHED_POST_RETRY_INCORRECT_SSL"
+            title = "Fetched Post OK - Using Fingerprint",
+            desc = "Fetched Post OK - Using Fingerprint",
+            enum = "FETCHED_POST_OK_USING_FINGERPRINT"
+        ),
+        FeatureModel(
+            featureIcon = R.drawable.baseline_developer_mode_24,
+            title = "Fetched Post Not OK - Using Incorrect Fingerprint",
+            desc = "Fetched Post Not OK - Using Incorrect Fingerprint",
+            enum = "FETCHED_POST_NOT_OK_USING_INCORRECT_FINGERPRINT"
+        ),
+        FeatureModel(
+            featureIcon = R.drawable.baseline_developer_mode_24,
+            title = "Fetched Post - Retry Incorrect SSL Interceptor",
+            desc = "Fetched Post - Retry Incorrect SSL Interceptor",
+            enum = "FETCHED_POST_WITH_RETRY_INCORRECT_SSL"
         ),
         FeatureModel(
             featureIcon = R.drawable.baseline_developer_mode_24,
@@ -141,6 +160,7 @@ class MainActivity : AppCompatActivity(), ListExampleAdapter.Callback {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+
         rv = findViewById<RecyclerView>(R.id.rv)
 
         featureWifi = NetworxWifi(applicationContext)
@@ -152,10 +172,13 @@ class MainActivity : AppCompatActivity(), ListExampleAdapter.Callback {
         viewModel = MainViewModel(
             exampleNetworkUseCase = ExampleNetworkUseCaseImpl(
                 repositoryDatasource = RepositoryDatasourceImpl(
-                    jsonPlaceHolderAPI = jsonPlaceHolderAPI,
-                    jsonPlaceHolderUsingRawResPem = jsonPlaceHolderRawResPemAPI,
-                    jsonPlaceHolderIncorrectSslAPI = jsonPlaceHolderIncorrectSSLAPI,
-                    jsonPlaceHolderRetryIncorrectSslAPI = jsonPlaceHolderRetryIncorrectSSLAPI,
+                    jsonPlaceHolderAPIWithCorrectPinningPublicKey = jsonPlaceHolderAPIWithCorrectPinningPublicKey,
+                    jsonPlaceHolderAPIWithIncorrectPinningPublicKey = jsonPlaceHolderAPIWithIncorrectPinningPublicKey,
+                    jsonPlaceHolderAPIWithCorrectCertFromResource = jsonPlaceHolderAPIWithCorrectCertFromResource,
+                    jsonPlaceHolderAPIWithIncorrectCertFromResource = jsonPlaceHolderAPIWithIncorrectCertFromResource,
+                    jsonPlaceHolderAPIWithCorrectFingerprint = jsonPlaceHolderAPIWithCorrectFingerprint,
+                    jsonPlaceHolderAPIWithIncorrectFingerprint = jsonPlaceHolderAPIWithIncorrectFingerprint,
+                    jsonPlaceHolderAPIWithRetryMechanism = jsonPlaceHolderAPIRetrySSLMechanism,
                 )
             )
         )
@@ -166,7 +189,6 @@ class MainActivity : AppCompatActivity(), ListExampleAdapter.Callback {
         adapter = ListExampleAdapter()
         adapter.setCallback(this)
         adapter.setList(features)
-        adapter.setHasStableIds(true)
         rv.adapter = adapter
 
         viewModel.fetchedPostState.observe(this) { state ->
@@ -226,22 +248,6 @@ class MainActivity : AppCompatActivity(), ListExampleAdapter.Callback {
                 )
             }
 
-            "FETCHED_POST_OK_USING_PINNING_PUBLIC_KEY" -> {
-                viewModel.fetchedPostOkPinningPublicKey()
-            }
-
-            "FETCHED_POST_OK_USING_RAW_RES_PEM" -> {
-                viewModel.fetchedPostOkPinningRawResPem()
-            }
-
-            "FETCHED_POST_INCORRECT_SSL" -> {
-                viewModel.fetchedPostIncorrectSsl()
-            }
-
-            "FETCHED_POST_RETRY_INCORRECT_SSL" -> {
-                viewModel.fetchedPostRetryIncorrectSsl()
-            }
-
             "LISTEN_CONNECTIVITY_CHANGE" -> {
                 networxManager.listenNetworkState(this, object : NetworxStateListener {
                     override fun onConnectedNetworkTypeChange(type: NetworkType) {
@@ -263,6 +269,34 @@ class MainActivity : AppCompatActivity(), ListExampleAdapter.Callback {
 
             "REMOVE_LISTEN_CONNECTIVITY_CHANGE" -> {
                 networxManager.removeListenerNetworkState(this)
+            }
+
+            "FETCHED_POST_OK_USING_CORRECT_PINNING_PUBLIC_KEY" -> {
+                viewModel.fetchedPostUsingCorrectPinningPublicKey()
+            }
+
+            "FETCHED_POST_NOT_OK_USING_INCORRECT_PINNING_PUBLIC_KEY" -> {
+                viewModel.fetchedPostUsingIncorrectPinningPublicKey()
+            }
+
+            "FETCHED_POST_OK_USING_CERT_FROM_RESOURCE" -> {
+                viewModel.fetchedPostUsingCorrectCertFromResource()
+            }
+
+            "FETCHED_POST_NOT_OK_USING_INCORRECT_CERT_FROM_RESOURCE" -> {
+                viewModel.fetchedPostUsingCorrectCertFromResource()
+            }
+
+            "FETCHED_POST_OK_USING_INCORRECT_FINGERPRINT" -> {
+                viewModel.fetchedPostUsingCorrectFingerprint()
+            }
+
+            "FETCHED_POST_NOT_OK_USING_INCORRECT_FINGERPRINT" -> {
+                viewModel.fetchedPostUsingIncorrectFingerprint()
+            }
+
+            "FETCHED_POST_WITH_RETRY_INCORRECT_SSL" -> {
+                viewModel.fetchedPostWithRetrySSLMechanism()
             }
 
             "SCAN_NEARBY_WIFI" -> {
@@ -318,14 +352,17 @@ class MainActivity : AppCompatActivity(), ListExampleAdapter.Callback {
         infoBottomsheet = null
     }
 
-    lateinit var jsonPlaceHolderAPI: JsonPlaceHolderAPI
-    lateinit var jsonPlaceHolderIncorrectSSLAPI: JsonPlaceHolderAPI
-    lateinit var jsonPlaceHolderRetryIncorrectSSLAPI: JsonPlaceHolderAPI
-    lateinit var jsonPlaceHolderRawResPemAPI: JsonPlaceHolderAPI
+    lateinit var jsonPlaceHolderAPIWithCorrectPinningPublicKey: JsonPlaceHolderAPI
+    lateinit var jsonPlaceHolderAPIWithIncorrectPinningPublicKey: JsonPlaceHolderAPI
+    lateinit var jsonPlaceHolderAPIWithCorrectCertFromResource: JsonPlaceHolderAPI
+    lateinit var jsonPlaceHolderAPIWithIncorrectCertFromResource: JsonPlaceHolderAPI
+    lateinit var jsonPlaceHolderAPIWithCorrectFingerprint: JsonPlaceHolderAPI
+    lateinit var jsonPlaceHolderAPIWithIncorrectFingerprint: JsonPlaceHolderAPI
+    lateinit var jsonPlaceHolderAPIRetrySSLMechanism: JsonPlaceHolderAPI
     private fun setupApiClient() {
-        val networkRepository: NetworxAPIRepository = NetworxAPI()
-        val chuckerInterceptor = networkRepository.getChuckerInterceptorBuilder(this, true).build()
-        val jsonPlaceHolderSslPinner = networkRepository.getCertificatePinnerBuilder()
+        val networxAPI = NetworxAPI()
+        val chuckerInterceptor = networxAPI.getChuckerInterceptorBuilder(this, true).build()
+        val correctSSLPinner = networxAPI.getCertificatePinnerBuilder()
             .add(
                 "jsonplaceholder.typicode.com",
                 "sha256/IcwtGuxd2fA2t1B0ylJrjvtQm4g4vz5aVshokMHp2Qc=",
@@ -333,7 +370,7 @@ class MainActivity : AppCompatActivity(), ListExampleAdapter.Callback {
                 "sha256/mEflZT5enoR1FuXLgYYGqnVEoZvmf9c2bVBpiOjYQ0c="
             )
             .build()
-        val jsonPlaceHolderIncorrectSslPinner = networkRepository.getCertificatePinnerBuilder()
+        val incorrectSSLPinner = networxAPI.getCertificatePinnerBuilder()
             .add(
                 "jsonplaceholder.typicode.com",
                 "sha256/B17MJoW6Bu9Hl+JStLT4gw+gm3nSDQ3lxuj6xKQrjmU=",
@@ -343,65 +380,135 @@ class MainActivity : AppCompatActivity(), ListExampleAdapter.Callback {
             .build()
 
         // Generate Trust Manager
-        val jsonPlaceholderTrustManager = networxAPI.getTrustManagerFromResource(
+        val correctTrustManager = this@MainActivity.networxAPI.getTrustManagerFromResource(
             context = applicationContext,
             alias = "jsonplaceholder-cert",
             certificateResource = R.raw.jsonplaceholder_cert
         )
-        val sslSocketFactory = networxAPI.getSslSocketFactory(jsonPlaceholderTrustManager)
+        val incorrectTrustManager = this@MainActivity.networxAPI.getTrustManagerFromResource(
+            context = applicationContext,
+            alias = "jsonplaceholder-cert",
+            certificateResource = R.raw.wikipedia_cert
+        )
+        val sslSocketFactory =
+            this@MainActivity.networxAPI.getSslSocketFactory(correctTrustManager)
         val hostNameVerifier = HostnameVerifier { hostname, session ->
-            Log.d(this::class.java.simpleName, "Example-Networx-LOG %%% - hostname: $hostname, session: ${session.isValid}")
-            Log.d(this::class.java.simpleName, "Example-Networx-LOG %%% - last accessed time: ${session.lastAccessedTime}, protocol: ${session.protocol}")
+            Log.d(
+                this::class.java.simpleName,
+                "Example-Networx-LOG %%% - hostname: $hostname, session: ${session.isValid}"
+            )
+            Log.d(
+                this::class.java.simpleName,
+                "Example-Networx-LOG %%% - last accessed time: ${session.lastAccessedTime}, protocol: ${session.protocol}"
+            )
             hostname == "jsonplaceholder.typicode.com"
         }
 
-        val okHttpClientBuilder = networkRepository.getOkHttpClientBuilder(
+        val okHttpClientWithSSLPinnerBuilder = networxAPI.getOkHttpClientBuilder(
             useLoggingInterceptor = true,
-            certificatePinner = jsonPlaceHolderSslPinner
+            certificatePinner = correctSSLPinner
         ).addInterceptor(chuckerInterceptor)
-        val okHttpClientRawResPemBuilder = networkRepository.getOkHttpClientBuilder(
+
+        val okHttpClientWithCorrectCertFromResourceBuilder = networxAPI.getOkHttpClientBuilder(
             useLoggingInterceptor = true,
             sslSocketFactory = sslSocketFactory,
-            x509TrustManager = jsonPlaceholderTrustManager.filterIsInstance<X509TrustManager>()
+            x509TrustManager = correctTrustManager.filterIsInstance<X509TrustManager>()
                 .firstOrNull(),
             hostnameVerifier = hostNameVerifier
         ).addInterceptor(chuckerInterceptor)
-        val incorrectSslOkHttpClientBuilder = networkRepository.getOkHttpClientBuilder(
+
+        val okHttpClientWithIncorrectCertFromResourceBuilder = networxAPI.getOkHttpClientBuilder(
             useLoggingInterceptor = true,
-            certificatePinner = jsonPlaceHolderIncorrectSslPinner
+            sslSocketFactory = sslSocketFactory,
+            x509TrustManager = incorrectTrustManager.filterIsInstance<X509TrustManager>()
+                .firstOrNull(),
+            hostnameVerifier = hostNameVerifier
         ).addInterceptor(chuckerInterceptor)
-        val retryIncorrectSslOkHttpClientBuilder = networkRepository.getOkHttpClientBuilder(
+
+        val okHttpClientWithCorrectFingerprintBuilder = networxAPI.getOkHttpClientBuilder(
             useLoggingInterceptor = true,
-            certificatePinner = jsonPlaceHolderIncorrectSslPinner
         ).addInterceptor(chuckerInterceptor)
-        retryIncorrectSslOkHttpClientBuilder.addInterceptor(
-            ExampleNetworxSSLInterceptor(
-                this,
-                retryIncorrectSslOkHttpClientBuilder.build(),
-                networkRepository
+        okHttpClientWithCorrectFingerprintBuilder.addInterceptor(
+            ExampleHTTPFingerprintInterceptor(
+                correct = true
             )
         )
 
-        val okHttpClient= okHttpClientBuilder.build()
-        val okHttpClientRawResPem= okHttpClientRawResPemBuilder.build()
-        val incorrectSslOkHttpClient = incorrectSslOkHttpClientBuilder.build()
+        val okHttpClientWithIncorrectFingerprintBuilder = networxAPI.getOkHttpClientBuilder(
+            useLoggingInterceptor = true,
+        ).addInterceptor(chuckerInterceptor)
+        okHttpClientWithIncorrectFingerprintBuilder.addInterceptor(
+            ExampleHTTPFingerprintInterceptor(
+                correct = false
+            )
+        )
+
+        val okHttpClientWithIncorrectSSLPinnerBuilder = networxAPI.getOkHttpClientBuilder(
+            useLoggingInterceptor = true,
+            certificatePinner = incorrectSSLPinner
+        ).addInterceptor(chuckerInterceptor)
+
+        val retryIncorrectSslOkHttpClientBuilder = networxAPI.getOkHttpClientBuilder(
+            useLoggingInterceptor = true,
+            certificatePinner = incorrectSSLPinner
+        ).addInterceptor(chuckerInterceptor)
+        retryIncorrectSslOkHttpClientBuilder.addInterceptor(
+            ExampleRetrySSLInterceptor(
+                this,
+                retryIncorrectSslOkHttpClientBuilder.build(),
+                networxAPI
+            )
+        )
+
+        val okHttpClientWithCorrectSSLPinner = okHttpClientWithSSLPinnerBuilder.build()
+        val okHttpClientWithIncorrectSSLPinner = okHttpClientWithIncorrectSSLPinnerBuilder.build()
+
+        val okHttpClientWithCorrectCertFromResource =
+            okHttpClientWithCorrectCertFromResourceBuilder.build()
+        val okHttpClientWithIncorrectCertFromResource =
+            okHttpClientWithIncorrectCertFromResourceBuilder.build()
+
+        val okHttpClientWithCorrectFingerprint =
+            okHttpClientWithCorrectFingerprintBuilder.build()
+        val okHttpClientWithIncorrectFingerprint =
+            okHttpClientWithIncorrectFingerprintBuilder.build()
+
         val retryIncorrectSslOkHttpClient = retryIncorrectSslOkHttpClientBuilder.build()
-        jsonPlaceHolderAPI = networkRepository.createAPI(
+
+        jsonPlaceHolderAPIWithCorrectPinningPublicKey = networxAPI.createAPI(
             baseUrl = "https://jsonplaceholder.typicode.com/",
-            okHttpClient = okHttpClient,
+            okHttpClient = okHttpClientWithCorrectSSLPinner,
             clazz = JsonPlaceHolderAPI::class.java
         )
-        jsonPlaceHolderRawResPemAPI = networkRepository.createAPI(
+        jsonPlaceHolderAPIWithIncorrectPinningPublicKey = networxAPI.createAPI(
             baseUrl = "https://jsonplaceholder.typicode.com/",
-            okHttpClient = okHttpClientRawResPem,
+            okHttpClient = okHttpClientWithIncorrectSSLPinner,
             clazz = JsonPlaceHolderAPI::class.java
         )
-        jsonPlaceHolderIncorrectSSLAPI = networkRepository.createAPI(
+
+        jsonPlaceHolderAPIWithCorrectCertFromResource = networxAPI.createAPI(
             baseUrl = "https://jsonplaceholder.typicode.com/",
-            okHttpClient = incorrectSslOkHttpClient,
+            okHttpClient = okHttpClientWithCorrectCertFromResource,
             clazz = JsonPlaceHolderAPI::class.java
         )
-        jsonPlaceHolderRetryIncorrectSSLAPI = networkRepository.createAPI(
+        jsonPlaceHolderAPIWithIncorrectCertFromResource = networxAPI.createAPI(
+            baseUrl = "https://jsonplaceholder.typicode.com/",
+            okHttpClient = okHttpClientWithIncorrectCertFromResource,
+            clazz = JsonPlaceHolderAPI::class.java
+        )
+
+        jsonPlaceHolderAPIWithCorrectFingerprint = networxAPI.createAPI(
+            baseUrl = "https://jsonplaceholder.typicode.com/",
+            okHttpClient = okHttpClientWithCorrectFingerprint,
+            clazz = JsonPlaceHolderAPI::class.java
+        )
+        jsonPlaceHolderAPIWithIncorrectFingerprint = networxAPI.createAPI(
+            baseUrl = "https://jsonplaceholder.typicode.com/",
+            okHttpClient = okHttpClientWithIncorrectFingerprint,
+            clazz = JsonPlaceHolderAPI::class.java
+        )
+
+        jsonPlaceHolderAPIRetrySSLMechanism = networxAPI.createAPI(
             baseUrl = "https://jsonplaceholder.typicode.com/",
             okHttpClient = retryIncorrectSslOkHttpClient,
             clazz = JsonPlaceHolderAPI::class.java

@@ -10,6 +10,7 @@ import android.net.Network
 import android.net.NetworkCapabilities
 import android.net.NetworkRequest
 import android.os.Build
+import android.util.Log
 import com.fadlurahmanfdev.networx.constant.NetworxExceptionConstant
 import com.fadlurahmanfdev.networx.data.enum.NetworkType
 import com.fadlurahmanfdev.networx.data.repository.NetworxStateListener
@@ -39,7 +40,7 @@ class NetworxManager(context: Context) : NetworxStateRepository {
                 _connectedNetworkType = NetworkType.ETHERNET
             }
 
-            if (isConnectedToVPN()){
+            if (isConnectedToVPN()) {
                 _connectedNetworkType = NetworkType.VPN
             }
 
@@ -132,6 +133,7 @@ class NetworxManager(context: Context) : NetworxStateRepository {
      * Listen network state whether the configurable network of device is changed.
      * */
     override fun listenNetworkState(activity: Activity, listener: NetworxStateListener) {
+        Log.i(this::class.java.simpleName, "Networx-LOG %%% starting to listen network state")
         _isConnectedToInternet = isConnected()
 
         activity.registerReceiver(
@@ -149,16 +151,25 @@ class NetworxManager(context: Context) : NetworxStateRepository {
             .build()
 
         connectivityManager.registerNetworkCallback(networkRequest, networxTypeChangedListener)
+        Log.i(
+            this::class.java.simpleName,
+            "Networx-LOG %%% currently successfully to listen network state"
+        )
     }
 
     /**
      * Remove Listener network state to detect configurable network state changed
      * */
     fun removeListenerNetworkState(activity: Activity) {
+        Log.i(this::class.java.simpleName, "Networx-LOG %%% removing network state listener")
         connectivityManager.unregisterNetworkCallback(networxTypeChangedListener)
         networxStateListener = null
 
         activity.unregisterReceiver(isNetworkConnectedReceiver)
+        Log.i(
+            this::class.java.simpleName,
+            "Networx-LOG %%% successfully removed network state listener"
+        )
     }
 
     /**
