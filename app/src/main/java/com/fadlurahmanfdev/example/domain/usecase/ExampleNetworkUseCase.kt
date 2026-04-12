@@ -4,8 +4,11 @@ import com.fadlurahmanfdev.example.data.dto.response.PostResponse
 import io.reactivex.rxjava3.core.Observable
 
 interface ExampleNetworkUseCase {
-    fun getPostByIdPinningPublicKey(id:Int): Observable<PostResponse>
-    fun getPostByIdRawResPem(id:Int): Observable<PostResponse>
-    fun getPostByIdIncorrectSSL(id:Int): Observable<PostResponse>
-    fun getPostByIdRetryIncorrectSSL(id:Int): Observable<PostResponse>
+    fun getPostByIdWithCorrectPinningPublicKey(id:Int): Observable<PostResponse>
+    fun getPostByIdWithIncorrectPinningPublicKey(id:Int): Observable<PostResponse>
+    fun getPostByIdWithCorrectCertFromResource(id:Int): Observable<PostResponse>
+    fun getPostByIdWithIncorrectCertFromResource(id:Int): Observable<PostResponse>
+    fun getPostByIdWithCorrectFingerprint(id:Int): Observable<PostResponse>
+    fun getPostByIdWithIncorrectFingerprint(id:Int): Observable<PostResponse>
+    fun getPostByIdWithRetrySSLMechanism(id:Int): Observable<PostResponse>
 }

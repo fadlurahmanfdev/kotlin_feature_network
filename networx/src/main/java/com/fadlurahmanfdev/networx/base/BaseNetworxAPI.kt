@@ -5,13 +5,14 @@ import androidx.annotation.RawRes
 import com.chuckerteam.chucker.api.ChuckerCollector
 import com.chuckerteam.chucker.api.ChuckerInterceptor
 import com.chuckerteam.chucker.api.RetentionManager
-import com.fadlurahmanfdev.networx.data.repository.NetworxAPIRepository
+import hu.akarnokd.rxjava3.retrofit.RxJava3CallAdapterFactory
 import okhttp3.CertificatePinner
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.CallAdapter
 import retrofit2.Converter
 import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 import java.io.InputStream
 import java.security.KeyStore
 import java.security.cert.CertificateFactory
@@ -24,11 +25,15 @@ import javax.net.ssl.TrustManager
 import javax.net.ssl.TrustManagerFactory
 import javax.net.ssl.X509TrustManager
 
-open class BaseNetworxAPI : NetworxAPIRepository {
+open class BaseNetworxAPI {
     /**
      * Creates a ChuckerInterceptor.Builder configured with the provided Context. This interceptor is used for inspecting and debugging HTTP requests and responses within the application.
+     * [showNotification] whether notification should pop up every API request.
      */
-    override fun getChuckerInterceptorBuilder(context: Context, showNotification: Boolean): ChuckerInterceptor.Builder {
+    fun getChuckerInterceptorBuilder(
+        context: Context,
+        showNotification: Boolean
+    ): ChuckerInterceptor.Builder {
         val chuckerCollector = ChuckerCollector(
             context = context,
             showNotification = showNotification,
@@ -45,7 +50,7 @@ open class BaseNetworxAPI : NetworxAPIRepository {
     /**
      * Generates a CertificatePinner.Builder, which is used to build a certificate pinner. This pinner ensures that only specified SSL certificates are accepted for secure connections, enhancing the security of network communications.
      */
-    override fun getCertificatePinnerBuilder(): CertificatePinner.Builder =
+    fun getCertificatePinnerBuilder(): CertificatePinner.Builder =
         CertificatePinner.Builder()
 
     /**
@@ -68,7 +73,7 @@ open class BaseNetworxAPI : NetworxAPIRepository {
      * Usage:
      * val trustManagers = getTrustManagerFromResource(context, R.raw.my_certificate, "myAlias")
      */
-    override fun getTrustManagerFromResource(
+    fun getTrustManagerFromResource(
         context: Context,
         @RawRes certificateResource: Int,
         alias: String
@@ -112,7 +117,7 @@ open class BaseNetworxAPI : NetworxAPIRepository {
      *
      * @see getTrustManagerFromResource Retrieves TrustManagers from a certificate resource.
      */
-    override fun getSslSocketFactory(trustManagers: Array<TrustManager>): SSLSocketFactory {
+    fun getSslSocketFactory(trustManagers: Array<TrustManager>): SSLSocketFactory {
         val sslContext = SSLContext.getInstance("TLS")
         sslContext.init(null, trustManagers, null)
         return sslContext.socketFactory
@@ -152,15 +157,15 @@ open class BaseNetworxAPI : NetworxAPIRepository {
      *     hostnameVerifier = myHostnameVerifier
      * )
      */
-    override fun getOkHttpClientBuilder(
-        connectTimeout: Long?,
-        readTimeout: Long?,
-        writeTimeout: Long?,
+    fun getOkHttpClientBuilder(
+        connectTimeout: Long? = null,
+        readTimeout: Long? = null,
+        writeTimeout: Long? = null,
         useLoggingInterceptor: Boolean,
-        certificatePinner: CertificatePinner?,
-        sslSocketFactory: SSLSocketFactory?,
-        x509TrustManager: X509TrustManager?,
-        hostnameVerifier: HostnameVerifier?
+        certificatePinner: CertificatePinner? = null,
+        sslSocketFactory: SSLSocketFactory? = null,
+        x509TrustManager: X509TrustManager? = null,
+        hostnameVerifier: HostnameVerifier? = null,
     ): OkHttpClient.Builder = OkHttpClient.Builder().apply {
         if (connectTimeout != null) {
             this.connectTimeout(connectTimeout, TimeUnit.MILLISECONDS)
@@ -217,7 +222,7 @@ open class BaseNetworxAPI : NetworxAPIRepository {
      *
      * @see getOkHttpClientBuilder Configures OkHttpClient for network requests.
      */
-    override fun createRetrofit(
+    fun createRetrofit(
         baseUrl: String,
         okHttpClient: OkHttpClient,
         callAdapterFactory: CallAdapter.Factory,
@@ -253,11 +258,11 @@ open class BaseNetworxAPI : NetworxAPIRepository {
      *
      * @see createRetrofit configure retrofit to create an API Client.
      */
-    override fun <T> createAPI(
+    fun <T> createAPI(
         baseUrl: String,
         okHttpClient: OkHttpClient,
-        callAdapterFactory: CallAdapter.Factory,
-        converterFactory: Converter.Factory,
+        callAdapterFactory: CallAdapter.Factory = RxJava3CallAdapterFactory.create(),
+        converterFactory: Converter.Factory = GsonConverterFactory.create(),
         clazz: Class<T>,
     ): T {
         return createRetrofit(

@@ -6,13 +6,16 @@ import io.reactivex.rxjava3.core.Observable
 import okio.IOException
 
 class RepositoryDatasourceImpl(
-    private val jsonPlaceHolderAPI: JsonPlaceHolderAPI,
-    private val jsonPlaceHolderIncorrectSslAPI: JsonPlaceHolderAPI,
-    private val jsonPlaceHolderRetryIncorrectSslAPI: JsonPlaceHolderAPI,
-    private val jsonPlaceHolderUsingRawResPem: JsonPlaceHolderAPI,
+    private val jsonPlaceHolderAPIWithCorrectPinningPublicKey: JsonPlaceHolderAPI,
+    private val jsonPlaceHolderAPIWithIncorrectPinningPublicKey: JsonPlaceHolderAPI,
+    private val jsonPlaceHolderAPIWithCorrectCertFromResource: JsonPlaceHolderAPI,
+    private val jsonPlaceHolderAPIWithIncorrectCertFromResource: JsonPlaceHolderAPI,
+    private val jsonPlaceHolderAPIWithCorrectFingerprint: JsonPlaceHolderAPI,
+    private val jsonPlaceHolderAPIWithIncorrectFingerprint: JsonPlaceHolderAPI,
+    private val jsonPlaceHolderAPIWithRetryMechanism: JsonPlaceHolderAPI,
 ) : RepositoryDatasource {
-    override fun getPostById(id: Int): Observable<PostResponse> {
-        return jsonPlaceHolderAPI.getPostById(id).map { response ->
+    override fun getPostByIdUsingCorrectPinningPublicKey(id: Int): Observable<PostResponse> {
+        return jsonPlaceHolderAPIWithCorrectPinningPublicKey.getPostById(id).map { response ->
             if (!response.isSuccessful) {
                 throw IOException("")
             }
@@ -25,8 +28,8 @@ class RepositoryDatasourceImpl(
         }
     }
 
-    override fun getPostByIdRawResPem(id: Int): Observable<PostResponse> {
-        return jsonPlaceHolderUsingRawResPem.getPostById(id).map { response ->
+    override fun getPostByIdUsingIncorrectPinningPublicKey(id: Int): Observable<PostResponse> {
+        return jsonPlaceHolderAPIWithIncorrectPinningPublicKey.getPostById(id).map { response ->
             if (!response.isSuccessful) {
                 throw IOException("")
             }
@@ -39,8 +42,8 @@ class RepositoryDatasourceImpl(
         }
     }
 
-    override fun getPostByIdIncorrectSSL(id: Int): Observable<PostResponse> {
-        return jsonPlaceHolderIncorrectSslAPI.getPostById(id).map { response ->
+    override fun getPostByIdUsingCorrectCertFromResource(id: Int): Observable<PostResponse> {
+        return jsonPlaceHolderAPIWithCorrectCertFromResource.getPostById(id).map { response ->
             if (!response.isSuccessful) {
                 throw IOException("")
             }
@@ -53,8 +56,50 @@ class RepositoryDatasourceImpl(
         }
     }
 
-    override fun getPostByIdRetryIncorrectSSL(id: Int): Observable<PostResponse> {
-        return jsonPlaceHolderRetryIncorrectSslAPI.getPostById(id).map { response ->
+    override fun getPostByIdUsingIncorrectCertFromResource(id: Int): Observable<PostResponse> {
+        return jsonPlaceHolderAPIWithIncorrectCertFromResource.getPostById(id).map { response ->
+            if (!response.isSuccessful) {
+                throw IOException("")
+            }
+
+            if (response.body() == null) {
+                throw IOException()
+            }
+
+            response.body()!!
+        }
+    }
+
+    override fun getPostByIdUsingCorrectFingerprint(id: Int): Observable<PostResponse> {
+        return jsonPlaceHolderAPIWithCorrectFingerprint.getPostById(id).map { response ->
+            if (!response.isSuccessful) {
+                throw IOException("")
+            }
+
+            if (response.body() == null) {
+                throw IOException()
+            }
+
+            response.body()!!
+        }
+    }
+
+    override fun getPostByIdUsingIncorrectFingerprint(id: Int): Observable<PostResponse> {
+        return jsonPlaceHolderAPIWithIncorrectFingerprint.getPostById(id).map { response ->
+            if (!response.isSuccessful) {
+                throw IOException("")
+            }
+
+            if (response.body() == null) {
+                throw IOException()
+            }
+
+            response.body()!!
+        }
+    }
+
+    override fun getPostByIdWithRetrySSLMechanism(id: Int): Observable<PostResponse> {
+        return jsonPlaceHolderAPIWithRetryMechanism.getPostById(id).map { response ->
             if (!response.isSuccessful) {
                 throw IOException("")
             }

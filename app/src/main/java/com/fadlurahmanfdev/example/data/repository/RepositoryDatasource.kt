@@ -4,8 +4,11 @@ import com.fadlurahmanfdev.example.data.dto.response.PostResponse
 import io.reactivex.rxjava3.core.Observable
 
 interface RepositoryDatasource {
-    fun getPostById(id:Int): Observable<PostResponse>
-    fun getPostByIdRawResPem(id:Int): Observable<PostResponse>
-    fun getPostByIdIncorrectSSL(id:Int): Observable<PostResponse>
-    fun getPostByIdRetryIncorrectSSL(id:Int): Observable<PostResponse>
+    fun getPostByIdUsingCorrectPinningPublicKey(id:Int): Observable<PostResponse>
+    fun getPostByIdUsingIncorrectPinningPublicKey(id:Int): Observable<PostResponse>
+    fun getPostByIdUsingCorrectCertFromResource(id:Int): Observable<PostResponse>
+    fun getPostByIdUsingIncorrectCertFromResource(id:Int): Observable<PostResponse>
+    fun getPostByIdUsingCorrectFingerprint(id:Int): Observable<PostResponse>
+    fun getPostByIdUsingIncorrectFingerprint(id:Int): Observable<PostResponse>
+    fun getPostByIdWithRetrySSLMechanism(id:Int): Observable<PostResponse>
 }
