@@ -60,7 +60,7 @@ mavenPublishing {
     publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
     signAllPublications()
 
-    coordinates("com.fadlurahmanfdev", "networx", "0.0.1")
+    coordinates("com.fadlurahmanfdev", "networx", "0.1.0")
 
     pom {
         name.set("Networx")

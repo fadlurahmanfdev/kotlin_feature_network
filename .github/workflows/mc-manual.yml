@@ -15,8 +15,6 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-      - name: Gradle cache
-        uses: gradle/actions/setup-gradle@v3
       - name: Setup Version
         id: setup
         run: |
@@ -47,5 +45,7 @@ jobs:
       - name: Publish To Maven Central
         run: |
           ./gradlew clean
-          ./gradlew :networx:publishMavenPublicationToMavenCentralRepository
-          
+          echo "---------------------------||---------------------------"
+          echo "---------------------------||---------------------------"
+          echo "---------------------------||---------------------------"
+          ./gradlew :whispr:publishMavenPublicationToMavenCentralRepository
