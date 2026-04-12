@@ -7,19 +7,31 @@ import io.reactivex.rxjava3.core.Observable
 class ExampleNetworkUseCaseImpl(
     private val repositoryDatasource: RepositoryDatasource
 ) : ExampleNetworkUseCase {
-    override fun getPostByIdPinningPublicKey(id: Int): Observable<PostResponse> {
-        return repositoryDatasource.getPostById(id)
+    override fun getPostByIdWithCorrectPinningPublicKey(id: Int): Observable<PostResponse> {
+        return repositoryDatasource.getPostByIdUsingCorrectPinningPublicKey(id)
     }
 
-    override fun getPostByIdRawResPem(id: Int): Observable<PostResponse> {
-        return repositoryDatasource.getPostByIdRawResPem(id)
+    override fun getPostByIdWithIncorrectPinningPublicKey(id: Int): Observable<PostResponse> {
+        return repositoryDatasource.getPostByIdUsingIncorrectPinningPublicKey(id)
     }
 
-    override fun getPostByIdIncorrectSSL(id: Int): Observable<PostResponse> {
-        return repositoryDatasource.getPostByIdIncorrectSSL(id)
+    override fun getPostByIdWithCorrectCertFromResource(id: Int): Observable<PostResponse> {
+        return repositoryDatasource.getPostByIdUsingCorrectCertFromResource(id)
     }
 
-    override fun getPostByIdRetryIncorrectSSL(id: Int): Observable<PostResponse> {
-        return repositoryDatasource.getPostByIdRetryIncorrectSSL(id)
+    override fun getPostByIdWithIncorrectCertFromResource(id: Int): Observable<PostResponse> {
+        return repositoryDatasource.getPostByIdUsingIncorrectCertFromResource(id)
+    }
+
+    override fun getPostByIdWithCorrectFingerprint(id: Int): Observable<PostResponse> {
+        return repositoryDatasource.getPostByIdUsingCorrectFingerprint(id)
+    }
+
+    override fun getPostByIdWithIncorrectFingerprint(id: Int): Observable<PostResponse> {
+        return repositoryDatasource.getPostByIdUsingIncorrectFingerprint(id)
+    }
+
+    override fun getPostByIdWithRetrySSLMechanism(id: Int): Observable<PostResponse> {
+        return repositoryDatasource.getPostByIdWithRetrySSLMechanism(id)
     }
 }
